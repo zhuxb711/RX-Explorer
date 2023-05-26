@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -11,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -122,7 +122,7 @@ namespace RX_Explorer.View
         private async void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             await AuxiliaryTrustProcessController.SetExpectedControllerNumAsync(TabCollection.Count);
-            await MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(OpenedPathList));
+            await MonitorTrustProcessController.SetRecoveryDataAsync(JsonConvert.SerializeObject(OpenedPathList));
         }
 
         private async void PreviewTimer_Tick(object sender, ElapsedEventArgs e)
@@ -628,7 +628,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
+                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]> { new string[] { Drive.Path } }))}"));
                                                     }
                                                 }
                                                 else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
@@ -648,7 +648,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Library.Path } }))}"));
+                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]> { new string[] { Library.Path } }))}"));
                                                     }
                                                 }
 
@@ -1133,11 +1133,11 @@ namespace RX_Explorer.View
                 {
                     if (Renderer.RendererFrame.Content is Home)
                     {
-                        args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))));
+                        args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(Array.Empty<string>()))));
                     }
                     else if (Renderer.Presenters.Any())
                     {
-                        args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray()))));
+                        args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray()))));
                     }
                     else
                     {
@@ -1216,7 +1216,7 @@ namespace RX_Explorer.View
                                     }
                                 }
 
-                                IEnumerable<string> PathList = JsonSerializer.Deserialize<IEnumerable<string>>(RawText);
+                                IEnumerable<string> PathList = JsonConvert.DeserializeObject<IEnumerable<string>>(RawText);
 
                                 if (PathList.Any())
                                 {
@@ -1509,7 +1509,7 @@ namespace RX_Explorer.View
                                 break;
                             }
                         }
-                        
+
                         if (CurrentTabRenderer.RendererFrame.CanGoBack)
                         {
                             CurrentTabRenderer.RendererFrame.GoBack();
@@ -1535,7 +1535,7 @@ namespace RX_Explorer.View
                 {
                     if (Tab.Content is Frame BaseFrame && BaseFrame.Content is TabItemContentRenderer Renderer)
                     {
-                        string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                        string StartupArgument = Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]>
                         {
                             Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
                                                .Where((Path) => !string.IsNullOrWhiteSpace(Path))

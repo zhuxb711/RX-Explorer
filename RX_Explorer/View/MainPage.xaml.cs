@@ -2,13 +2,13 @@
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
@@ -273,7 +273,7 @@ namespace RX_Explorer.View
                 {
                     if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
                     {
-                        IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
+                        IReadOnlyDictionary<string, bool> Mapping = JsonConvert.DeserializeObject<IReadOnlyDictionary<string, bool>>(MappingJson);
 
                         if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
                         {
@@ -1289,7 +1289,7 @@ namespace RX_Explorer.View
         {
             if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
             {
-                IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
+                IReadOnlyDictionary<string, bool> Mapping = JsonConvert.DeserializeObject<IReadOnlyDictionary<string, bool>>(MappingJson);
 
                 if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
                 {
@@ -1326,7 +1326,7 @@ namespace RX_Explorer.View
                     SecureAreaNavigationItem.Visibility = Dialog.SecureAreaItemChecked ? Visibility.Visible : Visibility.Collapsed;
                     BluetoothAudioNavigationItem.Visibility = Dialog.BluetoothAudioItemChecked ? Visibility.Visible : Visibility.Collapsed;
 
-                    ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] = JsonSerializer.Serialize(new Dictionary<string, bool>
+                    ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] = JsonConvert.SerializeObject(new Dictionary<string, bool>
                     {
                         { "RecycleBinItem", Dialog.RecycleBinItemChecked },
                         { "QuickStartItem", Dialog.QuickStartItemChecked },

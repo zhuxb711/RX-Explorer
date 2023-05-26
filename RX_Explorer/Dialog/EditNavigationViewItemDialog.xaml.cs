@@ -1,6 +1,6 @@
-﻿using RX_Explorer.Class;
+﻿using Newtonsoft.Json;
+using RX_Explorer.Class;
 using System.Collections.Generic;
-using System.Text.Json;
 using Windows.Storage;
 
 namespace RX_Explorer.Dialog
@@ -21,7 +21,7 @@ namespace RX_Explorer.Dialog
 
             if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
             {
-                IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
+                IReadOnlyDictionary<string, bool> Mapping = JsonConvert.DeserializeObject<IReadOnlyDictionary<string, bool>>(MappingJson);
 
                 if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
                 {

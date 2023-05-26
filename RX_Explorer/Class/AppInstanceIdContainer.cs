@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).LastOrDefault() ?? string.Empty;
+                    return JsonConvert.DeserializeObject<IEnumerable<string>>(SavedInfo).LastOrDefault() ?? string.Empty;
                 }
             }
         }
@@ -39,11 +39,11 @@ namespace RX_Explorer.Class
 
             if (string.IsNullOrEmpty(SavedInfo))
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new string[] { CurrentId });
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(new string[] { CurrentId });
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { CurrentId }).Append(CurrentId));
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(JsonConvert.DeserializeObject<IEnumerable<string>>(SavedInfo).Except(new string[] { CurrentId }).Append(CurrentId));
             }
         }
 
@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { Id }));
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(JsonConvert.DeserializeObject<IEnumerable<string>>(SavedInfo).Except(new string[] { Id }));
             }
         }
 

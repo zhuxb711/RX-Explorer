@@ -1,10 +1,10 @@
-﻿using SharpDX;
+﻿using Newtonsoft.Json;
+using SharpDX;
 using SharpDX.DirectWrite;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] = JsonSerializer.Serialize(NewFont);
+                ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] = JsonConvert.SerializeObject(NewFont);
             }
 
             return Current != NewFont;
@@ -289,7 +289,7 @@ namespace RX_Explorer.Class
 
             if (ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString)
             {
-                Current = JsonSerializer.Deserialize<InstalledFonts>(OverrideString);
+                Current = JsonConvert.DeserializeObject<InstalledFonts>(OverrideString);
 
                 if (!GetInstalledFontFamily().Contains(Current))
                 {

@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -13,7 +14,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -789,7 +789,7 @@ namespace RX_Explorer.View
         public async Task<bool> ExecuteGoForwardActionIfAvailableAsync()
         {
             if (CurrentPresenter.ForwardNavigationStack.TryPeek(out NavigationRelatedRecord CurrentRecord))
-            {                    
+            {
                 //We must check whether the record path is still exists first to avoid change the navigation stack but could not enter the folder later
                 if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentRecord.Path))
                 {
@@ -2377,7 +2377,7 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.CheckExistsAsync(Content.Path))
                 {
-                    string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                    string StartupArgument = Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]>
                     {
                         new string[]{ Content.Path }
                     }));
@@ -3159,7 +3159,7 @@ namespace RX_Explorer.View
             AddressHistoryFlyout.Hide();
 
             if (e.ClickedItem is NavigationRecordDisplay Record && CurrentPresenter?.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-            {                    
+            {
                 //We must check whether the record path is still exists first to avoid change the navigation stack but could not enter the folder later
                 if (await FileSystemStorageItemBase.CheckExistsAsync(Record.Path))
                 {

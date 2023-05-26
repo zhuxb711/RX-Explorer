@@ -1,19 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     internal static class BackendHelper
     {
-        private static JsonSerializerOptions SerializerOptions { get; } = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
         public static async Task<RetrieveAADTokenContentResponseDto> RetrieveAADTokenAsync()
         {
             try
@@ -28,7 +23,7 @@ namespace RX_Explorer.Class
                 using (HttpWebResponse Response = (HttpWebResponse)await Request.GetResponseAsync())
                 using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.GetEncoding(Response.CharacterSet)))
                 {
-                    RetrieveAADTokenResponseDto ResponseDto = JsonSerializer.Deserialize<RetrieveAADTokenResponseDto>(await Reader.ReadToEndAsync(), SerializerOptions);
+                    RetrieveAADTokenResponseDto ResponseDto = JsonConvert.DeserializeObject<RetrieveAADTokenResponseDto>(await Reader.ReadToEndAsync());
 
                     if (ResponseDto.StatusCode is not 200 and not 201)
                     {
@@ -44,12 +39,7 @@ namespace RX_Explorer.Class
                 {
                     using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.UTF8))
                     {
-                        ResponseBase ErrorResponse = JsonSerializer.Deserialize<ResponseBase>(await Reader.ReadToEndAsync(), new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        throw new Exception(ErrorResponse.ErrorMessage);
+                        throw new Exception(JsonConvert.DeserializeObject<ResponseBase>(await Reader.ReadToEndAsync()).ErrorMessage);
                     }
                 }
 
@@ -71,7 +61,7 @@ namespace RX_Explorer.Class
                 using (Stream WriteStream = await Request.GetRequestStreamAsync())
                 using (StreamWriter Writer = new StreamWriter(WriteStream, Encoding.UTF8, 1024, true))
                 {
-                    await Writer.WriteAsync(JsonSerializer.Serialize(new RedeemCodeRequestDto
+                    await Writer.WriteAsync(JsonConvert.SerializeObject(new RedeemCodeRequestDto
                     {
                         customerCollectionId = CustomerCollectionId,
                     }));
@@ -82,7 +72,7 @@ namespace RX_Explorer.Class
                 using (HttpWebResponse Response = (HttpWebResponse)await Request.GetResponseAsync())
                 using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.GetEncoding(Response.CharacterSet)))
                 {
-                    RedeemCodeResponseDto ResponseDto = JsonSerializer.Deserialize<RedeemCodeResponseDto>(await Reader.ReadToEndAsync(), SerializerOptions);
+                    RedeemCodeResponseDto ResponseDto = JsonConvert.DeserializeObject<RedeemCodeResponseDto>(await Reader.ReadToEndAsync());
 
                     if (ResponseDto.StatusCode is not 200 and not 201)
                     {
@@ -98,12 +88,7 @@ namespace RX_Explorer.Class
                 {
                     using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.UTF8))
                     {
-                        ResponseBase ErrorResponse = JsonSerializer.Deserialize<ResponseBase>(await Reader.ReadToEndAsync(), new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        throw new Exception(ErrorResponse.ErrorMessage);
+                        throw new Exception(JsonConvert.DeserializeObject<ResponseBase>(await Reader.ReadToEndAsync()).ErrorMessage);
                     }
                 }
 
@@ -125,7 +110,7 @@ namespace RX_Explorer.Class
                 using (HttpWebResponse Response = (HttpWebResponse)await Request.GetResponseAsync())
                 using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.GetEncoding(Response.CharacterSet)))
                 {
-                    return JsonSerializer.Deserialize<RedeemVisibilityStatusResponse>(await Reader.ReadToEndAsync(), SerializerOptions);
+                    return JsonConvert.DeserializeObject<RedeemVisibilityStatusResponse>(await Reader.ReadToEndAsync());
                 }
             }
             catch (WebException ex)
@@ -134,12 +119,7 @@ namespace RX_Explorer.Class
                 {
                     using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.UTF8))
                     {
-                        ResponseBase ErrorResponse = JsonSerializer.Deserialize<ResponseBase>(await Reader.ReadToEndAsync(), new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        throw new Exception(ErrorResponse.ErrorMessage);
+                        throw new Exception(JsonConvert.DeserializeObject<ResponseBase>(await Reader.ReadToEndAsync()).ErrorMessage);
                     }
                 }
 

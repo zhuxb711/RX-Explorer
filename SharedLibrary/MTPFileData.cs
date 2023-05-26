@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json.Serialization;
 
 namespace SharedLibrary
 {
@@ -12,13 +11,10 @@ namespace SharedLibrary
 
         public ulong Size { get; }
 
-        [JsonIgnore]
         public bool IsReadOnly => Attributes.HasFlag(FileAttributes.ReadOnly);
 
-        [JsonIgnore]
         public bool IsSystemItem => Attributes.HasFlag(FileAttributes.System);
 
-        [JsonIgnore]
         public bool IsHiddenItem => Attributes.HasFlag(FileAttributes.Hidden);
 
         public FileAttributes Attributes { get; }

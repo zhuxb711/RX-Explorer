@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using Nito.AsyncEx;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -16,7 +17,6 @@ using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -507,14 +507,11 @@ namespace RX_Explorer.View
             {
                 if (ApplicationData.Current.LocalSettings.Values["DefaultTerminalPath"] is string TerminalPath)
                 {
-                    JsonElement Terminal = JsonSerializer.Deserialize<JsonElement>(TerminalPath);
+                    var AnonymousType = JsonConvert.DeserializeAnonymousType(TerminalPath, new { Name = string.Empty, Path = string.Empty });
 
-                    if (Terminal.TryGetProperty("Name", out JsonElement NameElement) && Terminal.TryGetProperty("Path", out JsonElement PathElement))
+                    if (SQLite.Current.GetTerminalProfile(AnonymousType.Name, AnonymousType.Path) is TerminalProfile Profile)
                     {
-                        if (SQLite.Current.GetTerminalProfile(NameElement.GetString(), PathElement.GetString()) is TerminalProfile Profile)
-                        {
-                            return Profile;
-                        }
+                        return Profile;
                     }
                 }
                 else if (SQLite.Current.GetTerminalProfile("Windows Terminal") is TerminalProfile WTProfile)
@@ -528,7 +525,7 @@ namespace RX_Explorer.View
 
                 return null;
             }
-            set => ApplicationData.Current.LocalSettings.Values["DefaultTerminalPath"] = JsonSerializer.Serialize(new { value.Name, value.Path });
+            set => ApplicationData.Current.LocalSettings.Values["DefaultTerminalPath"] = JsonConvert.SerializeObject(new { value.Name, value.Path });
         }
 
         public static bool IsPreventAcrylicFallbackEnabled
@@ -1633,7 +1630,7 @@ namespace RX_Explorer.View
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
                 FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString
-                                                      ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString))
+                                                      ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonConvert.DeserializeObject<InstalledFonts>(OverrideString))
                                                       : Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
 
                 BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
@@ -3257,7 +3254,7 @@ namespace RX_Explorer.View
                 {
                     string JsonContent = await FileIO.ReadTextAsync(ImportFile, UnicodeEncoding.Utf16LE);
 
-                    if (JsonSerializer.Deserialize<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
+                    if (JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
                     {
                         if (Dic.TryGetValue("Identitifier", out string Id)
                             && Dic.TryGetValue("HardwareUUID", out string HardwareId)
@@ -3292,115 +3289,18 @@ namespace RX_Explorer.View
 
                                     if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Dictionary<string, JsonElement> ConfigDic = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString);
-
                                         ApplicationData.Current.LocalSettings.Values.Clear();
 
-                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic.Where((Config) => Config.Key != "LicenseGrant"))
+                                        foreach (KeyValuePair<string, object> Pair in JsonConvert.DeserializeObject<IReadOnlyDictionary<string, object>>(ConfigDecryptedString).Where((Config) => Config.Key != "LicenseGrant"))
                                         {
-                                            switch (Pair.Value.ValueKind)
-                                            {
-                                                case JsonValueKind.Number:
-                                                    {
-                                                        if (Pair.Value.TryGetInt32(out int INT32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
-                                                        }
-                                                        else if (Pair.Value.TryGetInt64(out long INT64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
-                                                        }
-                                                        else if (Pair.Value.TryGetSingle(out float FL32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
-                                                        }
-                                                        else if (Pair.Value.TryGetDouble(out double FL64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
-                                                        }
-
-                                                        break;
-                                                    }
-                                                case JsonValueKind.String:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
-                                                        break;
-                                                    }
-                                                case JsonValueKind.True:
-                                                case JsonValueKind.False:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
-                                                        break;
-                                                    }
-                                            }
+                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value);
                                         }
 
                                         string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
 
                                         if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            Dictionary<string, string> DatabaseDic = JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString);
-                                            List<(string TableName, IEnumerable<object[]> Data)> DatabaseFormattedArray = new List<(string TableName, IEnumerable<object[]> Data)>(DatabaseDic.Count);
-
-                                            foreach (KeyValuePair<string, string> TableDic in DatabaseDic)
-                                            {
-                                                if (JsonSerializer.Deserialize<IReadOnlyList<JsonElement[]>>(TableDic.Value) is IReadOnlyList<JsonElement[]> RowData)
-                                                {
-                                                    List<object[]> RowFormattedArray = new List<object[]>(RowData.Count);
-
-                                                    foreach (JsonElement[] Data in RowData)
-                                                    {
-                                                        object[] ColumnFormattedArray = new object[Data.Length];
-
-                                                        for (int Index = 0; Index < Data.Length; Index++)
-                                                        {
-                                                            JsonElement InnerElement = Data[Index];
-
-                                                            switch (InnerElement.ValueKind)
-                                                            {
-                                                                case JsonValueKind.Number:
-                                                                    {
-                                                                        if (InnerElement.TryGetInt32(out int INT32))
-                                                                        {
-                                                                            ColumnFormattedArray[Index] = INT32;
-                                                                        }
-                                                                        else if (InnerElement.TryGetInt64(out long INT64))
-                                                                        {
-                                                                            ColumnFormattedArray[Index] = INT64;
-                                                                        }
-                                                                        else if (InnerElement.TryGetSingle(out float FL32))
-                                                                        {
-                                                                            ColumnFormattedArray[Index] = FL32;
-                                                                        }
-                                                                        else if (InnerElement.TryGetDouble(out double FL64))
-                                                                        {
-                                                                            ColumnFormattedArray[Index] = FL64;
-                                                                        }
-
-                                                                        break;
-                                                                    }
-                                                                case JsonValueKind.String:
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = InnerElement.GetString();
-                                                                        break;
-                                                                    }
-                                                                case JsonValueKind.True:
-                                                                case JsonValueKind.False:
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = InnerElement.GetBoolean();
-                                                                        break;
-                                                                    }
-                                                            }
-                                                        }
-
-                                                        RowFormattedArray.Add(ColumnFormattedArray);
-                                                    }
-
-                                                    DatabaseFormattedArray.Add((TableDic.Key, RowFormattedArray));
-                                                }
-                                            }
-
-                                            SQLite.Current.ImportData(DatabaseFormattedArray);
+                                            SQLite.Current.ImportData(JsonConvert.DeserializeObject<IReadOnlyDictionary<string, string>>(DatabaseDecryptedString).Select((TableDic) => (TableDic.Key, JsonConvert.DeserializeObject<IEnumerable<object[]>>(TableDic.Value))));
 
                                             if (Dic.TryGetValue("CustomImageDataPackageArray", out string CustomImageData)
                                                 && Dic.TryGetValue("CustomImageDataPackageArrayHash", out string CustomImageDataHash))
@@ -3411,7 +3311,7 @@ namespace RX_Explorer.View
                                                 {
                                                     StorageFolder CustomImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
 
-                                                    foreach (PortableImageDataPackage DataPackage in JsonSerializer.Deserialize<List<PortableImageDataPackage>>(CustomImageDataDecryptedString))
+                                                    foreach (PortableImageDataPackage DataPackage in JsonConvert.DeserializeObject<List<PortableImageDataPackage>>(CustomImageDataDecryptedString))
                                                     {
                                                         StorageFile NewImageFile = await CustomImageFolder.CreateFileAsync(DataPackage.Name, CreationCollisionOption.ReplaceExisting);
 
@@ -3526,7 +3426,7 @@ namespace RX_Explorer.View
 
                     foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportData())
                     {
-                        DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
+                        DataBaseDic.Add(TableName, JsonConvert.SerializeObject(Data));
                     }
 
                     List<PortableImageDataPackage> CustomImageDataPackageList = new List<PortableImageDataPackage>();
@@ -3549,9 +3449,9 @@ namespace RX_Explorer.View
 
                     Dictionary<string, object> ConfigDic = new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray().Where((Item) => Item.Key != "LicenseGrant"));
 
-                    string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
-                    string ConfigurationString = JsonSerializer.Serialize(ConfigDic);
-                    string CustomImageString = JsonSerializer.Serialize(CustomImageDataPackageList);
+                    string DatabaseString = JsonConvert.SerializeObject(DataBaseDic);
+                    string ConfigurationString = JsonConvert.SerializeObject(ConfigDic);
+                    string CustomImageString = JsonConvert.SerializeObject(CustomImageDataPackageList);
 
                     using (MD5 MD5Alg = MD5.Create())
                     {
@@ -3567,7 +3467,7 @@ namespace RX_Explorer.View
                             { "CustomImageDataPackageArrayHash", MD5Alg.GetHash(CustomImageString) }
                         };
 
-                        await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
+                        await FileIO.WriteTextAsync(SaveFile, JsonConvert.SerializeObject(BaseDic), UnicodeEncoding.Utf16LE);
                     }
                 }
             }

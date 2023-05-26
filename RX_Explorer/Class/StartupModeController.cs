@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
                                 yield break;
                             }
 
-                            foreach (string Path in JsonSerializer.Deserialize<IEnumerable<string>>(RawData).Where((Path) => !string.IsNullOrWhiteSpace(Path)))
+                            foreach (string Path in JsonConvert.DeserializeObject<IEnumerable<string>>(RawData).Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                             {
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
                                 {
@@ -82,7 +82,7 @@ namespace RX_Explorer.Class
                                 yield break;
                             }
 
-                            foreach (string[] PathList in JsonSerializer.Deserialize<IEnumerable<string[]>>(RawData).Where((Path) => Path.Length > 0))
+                            foreach (string[] PathList in JsonConvert.DeserializeObject<IEnumerable<string[]>>(RawData).Where((Path) => Path.Length > 0))
                             {
                                 List<string> ValidPathList = new List<string>(PathList.Length);
 
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
 
             lock (Locker)
             {
-                ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] = JsonSerializer.Serialize(InputPath);
+                ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] = JsonConvert.SerializeObject(InputPath);
                 ApplicationData.Current.SignalDataChanged();
             }
         }
@@ -129,7 +129,7 @@ namespace RX_Explorer.Class
 
             lock (Locker)
             {
-                ApplicationData.Current.LocalSettings.Values["StartupWithLastOpenedPath"] = JsonSerializer.Serialize(InputPath);
+                ApplicationData.Current.LocalSettings.Values["StartupWithLastOpenedPath"] = JsonConvert.SerializeObject(InputPath);
                 ApplicationData.Current.SignalDataChanged();
             }
         }

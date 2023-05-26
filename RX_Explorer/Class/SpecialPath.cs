@@ -1,9 +1,9 @@
-﻿using SharedLibrary;
+﻿using Newtonsoft.Json;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
@@ -32,7 +32,7 @@ namespace RX_Explorer.Class
                         using (Stream Stream = await JsonFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                         using (StreamReader Reader = new StreamReader(Stream, true))
                         {
-                            var JsonObject = JsonSerializer.Deserialize<IDictionary<string, IDictionary<string, object>>>(Reader.ReadToEnd());
+                            var JsonObject = JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, object>>>(Reader.ReadToEnd());
 
                             if (JsonObject.TryGetValue("personal", out IDictionary<string, object> PersonalSubDic))
                             {

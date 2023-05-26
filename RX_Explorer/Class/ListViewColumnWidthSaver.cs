@@ -1,6 +1,6 @@
-﻿using PropertyChanged;
+﻿using Newtonsoft.Json;
+using PropertyChanged;
 using System;
-using System.Text.Json;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
             set
             {
                 Cache = value;
-                ApplicationData.Current.LocalSettings.Values[Resource] = JsonSerializer.Serialize(value);
+                ApplicationData.Current.LocalSettings.Values[Resource] = JsonConvert.SerializeObject(value);
                 ApplicationData.Current.SignalDataChanged();
             }
         }
@@ -164,7 +164,7 @@ namespace RX_Explorer.Class
 
             if (ApplicationData.Current.LocalSettings.Values[Resource] is string RawString)
             {
-                Cache = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                Cache = JsonConvert.DeserializeObject<ColumnWidthData>(RawString);
             }
             else
             {
@@ -252,7 +252,7 @@ namespace RX_Explorer.Class
                 {
                     if (ApplicationData.Current.LocalSettings.Values[Resource] is string RawString)
                     {
-                        InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                        InnerData = JsonConvert.DeserializeObject<ColumnWidthData>(RawString);
                     }
                 });
             }

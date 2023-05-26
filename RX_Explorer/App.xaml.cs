@@ -1,15 +1,14 @@
 ﻿using CommandLine;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -280,7 +279,7 @@ namespace RX_Explorer
                                                                          Priority = ToastNotificationPriority.Default
                                                                      });
 
-                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
+                                                                     OpenPathListOnEachTab = JsonConvert.DeserializeObject<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
                                                                      break;
                                                                  }
@@ -299,13 +298,13 @@ namespace RX_Explorer
                                                                          Priority = ToastNotificationPriority.Default
                                                                      });
 
-                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
+                                                                     OpenPathListOnEachTab = JsonConvert.DeserializeObject<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
                                                                      break;
                                                                  }
                                                              case RecoveryReason.Restart when !string.IsNullOrEmpty(Options.RecoveryData):
                                                                  {
-                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
+                                                                     OpenPathListOnEachTab = JsonConvert.DeserializeObject<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
                                                                      break;
                                                                  }
@@ -354,7 +353,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<IReadOnlyList<string[]>>(Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath)));
+                                    Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonConvert.DeserializeObject<IReadOnlyList<string[]>>(Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath)));
                                 }
 
                                 break;

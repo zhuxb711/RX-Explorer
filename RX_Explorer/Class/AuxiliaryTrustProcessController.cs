@@ -1,5 +1,6 @@
 ﻿using ConcurrentPriorityQueue.Core;
 using Microsoft.Win32.SafeHandles;
+using Newtonsoft.Json;
 using Nito.AsyncEx;
 using RX_Explorer.Interface;
 using SharedLibrary;
@@ -11,7 +12,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -345,7 +345,7 @@ namespace RX_Explorer.Class
                             { "LogRecordFolderPath", ApplicationData.Current.TemporaryFolder.Path }
                         };
 
-                        PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
+                        PipeCommunicationBaseController.SendData(JsonConvert.SerializeObject(Command));
 
                         if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(PipeConnectionTimeout),
                                                 PipeCommandReadController.WaitForConnectionAsync(PipeConnectionTimeout),
@@ -408,7 +408,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        ResponseSet = CommandObject.TaskSource.TrySetResult(JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(e.Data));
+                        ResponseSet = CommandObject.TaskSource.TrySetResult(JsonConvert.DeserializeObject<IReadOnlyDictionary<string, string>>(e.Data));
                     }
                     catch (Exception ex)
                     {
@@ -433,7 +433,7 @@ namespace RX_Explorer.Class
                 {
                     InternalCommandQueueItem CommandItem = new InternalCommandQueueItem();
                     CommandQueue.Enqueue(CommandItem);
-                    PipeCommandWriteController.SendData(JsonSerializer.Serialize(new Dictionary<string, string>(Arguments.Select((Args) => new KeyValuePair<string, string>(Args.Item1, Convert.ToString(Args.Item2)))
+                    PipeCommandWriteController.SendData(JsonConvert.SerializeObject(new Dictionary<string, string>(Arguments.Select((Args) => new KeyValuePair<string, string>(Args.Item1, Convert.ToString(Args.Item2)))
                                                                                                                          .Prepend(new KeyValuePair<string, string>("CommandType", Enum.GetName(typeof(AuxiliaryTrustProcessCommandType), Type))))));
 
                     return await CommandItem.TaskSource.Task;
@@ -459,7 +459,7 @@ namespace RX_Explorer.Class
                 {
                     InternalCommandQueueItem CommandItem = new InternalCommandQueueItem(ProgressHandler);
                     CommandQueue.Enqueue(CommandItem);
-                    PipeCommandWriteController.SendData(JsonSerializer.Serialize(new Dictionary<string, string>(Arguments.Select((Args) => new KeyValuePair<string, string>(Args.Item1, Convert.ToString(Args.Item2)))
+                    PipeCommandWriteController.SendData(JsonConvert.SerializeObject(new Dictionary<string, string>(Arguments.Select((Args) => new KeyValuePair<string, string>(Args.Item1, Convert.ToString(Args.Item2)))
                                                                                                                          .Prepend(new KeyValuePair<string, string>("CommandType", Enum.GetName(typeof(AuxiliaryTrustProcessCommandType), Type))))));
 
                     return await CommandItem.TaskSource.Task;
@@ -563,7 +563,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return JsonSerializer.Deserialize<RemoteClipboardRelatedData>(RawText);
+                return JsonConvert.DeserializeObject<RemoteClipboardRelatedData>(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -579,7 +579,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return JsonSerializer.Deserialize<IReadOnlyList<string>>(RawText);
+                return JsonConvert.DeserializeObject<IReadOnlyList<string>>(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -609,11 +609,11 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, T> MapDictionary = InputList.ToDictionary((Item) => Guid.NewGuid().ToString("N"));
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.OrderByNaturalStringSortAlgorithm,
-                                                                                  ("InputList", JsonSerializer.Serialize(MapDictionary.Select((Item) => new StringNaturalAlgorithmData(Item.Key, StringSelector(Item.Value) ?? string.Empty)))));
+                                                                                  ("InputList", JsonConvert.SerializeObject(MapDictionary.Select((Item) => new StringNaturalAlgorithmData(Item.Key, StringSelector(Item.Value) ?? string.Empty)))));
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                IEnumerable<StringNaturalAlgorithmData> SortedList = JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(RawText);
+                IEnumerable<StringNaturalAlgorithmData> SortedList = JsonConvert.DeserializeObject<IEnumerable<StringNaturalAlgorithmData>>(RawText);
 
                 if (Direction == SortDirection.Ascending)
                 {
@@ -672,7 +672,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return JsonSerializer.Deserialize<MTPFileData>(RawText);
+                return JsonConvert.DeserializeObject<MTPFileData>(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -688,7 +688,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return JsonSerializer.Deserialize<MTPDriveVolumnData>(RawText);
+                return JsonConvert.DeserializeObject<MTPDriveVolumnData>(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -720,7 +720,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return JsonSerializer.Deserialize<MTPFileData>(RawText);
+                return JsonConvert.DeserializeObject<MTPFileData>(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -772,7 +772,7 @@ namespace RX_Explorer.Class
 
                 if (Response.TryGetValue("Success", out string RawText))
                 {
-                    return JsonSerializer.Deserialize<IReadOnlyList<MTPFileData>>(RawText);
+                    return JsonConvert.DeserializeObject<IReadOnlyList<MTPFileData>>(RawText);
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
@@ -824,7 +824,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string PermissionText))
             {
-                return JsonSerializer.Deserialize<IReadOnlyList<PermissionDataPackage>>(PermissionText);
+                return JsonConvert.DeserializeObject<IReadOnlyList<PermissionDataPackage>>(PermissionText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -947,7 +947,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string EncodingsString))
             {
-                return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select(Encoding.GetEncoding)
+                return JsonConvert.DeserializeObject<IEnumerable<int>>(EncodingsString).Select(Encoding.GetEncoding)
                                                                                     .Where((Encoding) => !string.IsNullOrWhiteSpace(Encoding.EncodingName))
                                                                                     .OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
                                                                                     .ToArray();
@@ -978,11 +978,11 @@ namespace RX_Explorer.Class
 
         public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(string Path, IEnumerable<string> Properties)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetProperties, ("Path", Path), ("Properties", JsonSerializer.Serialize(Properties)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetProperties, ("Path", Path), ("Properties", JsonConvert.SerializeObject(Properties)));
 
             if (Response.TryGetValue("Success", out string PropertiesString))
             {
-                return JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(PropertiesString);
+                return JsonConvert.DeserializeObject<IReadOnlyDictionary<string, string>>(PropertiesString);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1106,7 +1106,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string ThumbnailOverlayRaw))
             {
-                return JsonSerializer.Deserialize<IEnumerable<byte>>(ThumbnailOverlayRaw).ToArray();
+                return JsonConvert.DeserializeObject<IEnumerable<byte>>(ThumbnailOverlayRaw).ToArray();
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1192,7 +1192,7 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SetFileAttribute,
                                                                                   ("ExecutePath", Path),
-                                                                                  ("Attributes", JsonSerializer.Serialize(Attribute)));
+                                                                                  ("Attributes", JsonConvert.SerializeObject(Attribute)));
 
             if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1226,7 +1226,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                return JsonSerializer.Deserialize<IReadOnlyList<string>>(Result);
+                return JsonConvert.DeserializeObject<IReadOnlyList<string>>(Result);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1240,7 +1240,7 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.LaunchUWP,
                                                                                   ("AppUserModelId", AppUserModelId),
-                                                                                  ("LaunchPathArray", JsonSerializer.Serialize(PathArray)));
+                                                                                  ("LaunchPathArray", JsonConvert.SerializeObject(PathArray)));
 
             if (Response.ContainsKey("Success"))
             {
@@ -1258,7 +1258,7 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.LaunchUWP,
                                                                                   ("PackageFamilyName", PackageFamilyName),
-                                                                                  ("LaunchPathArray", JsonSerializer.Serialize(PathArray)));
+                                                                                  ("LaunchPathArray", JsonConvert.SerializeObject(PathArray)));
 
             if (Response.TryGetValue("Success", out string Result))
             {
@@ -1294,7 +1294,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Result);
+                InstalledApplicationPackage Pack = JsonConvert.DeserializeObject<InstalledApplicationPackage>(Result);
 
                 return await InstalledApplication.CreateAsync(Pack);
             }
@@ -1315,7 +1315,7 @@ namespace RX_Explorer.Class
             {
                 List<InstalledApplication> PackageList = new List<InstalledApplication>();
 
-                foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Result))
+                foreach (InstalledApplicationPackage Pack in JsonConvert.DeserializeObject<IEnumerable<InstalledApplicationPackage>>(Result))
                 {
                     PackageList.Add(await InstalledApplication.CreateAsync(Pack));
                 }
@@ -1336,7 +1336,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                byte[] Data = JsonSerializer.Deserialize<byte[]>(Result);
+                byte[] Data = JsonConvert.DeserializeObject<byte[]>(Result);
 
                 if (Data.Length > 0)
                 {
@@ -1356,12 +1356,12 @@ namespace RX_Explorer.Class
             if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
                 IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetContextMenuItems,
-                                                                                      ("ExecutePath", JsonSerializer.Serialize(PathArray)),
+                                                                                      ("ExecutePath", JsonConvert.SerializeObject(PathArray)),
                                                                                       ("IncludeExtensionItem", IncludeExtensionItem));
 
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToArray();
+                    return JsonConvert.DeserializeObject<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToArray();
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
@@ -1378,7 +1378,7 @@ namespace RX_Explorer.Class
             {
                 ClonePackage.IconData = Array.Empty<byte>();
 
-                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.InvokeContextMenuItem, ("DataPackage", JsonSerializer.Serialize(ClonePackage)));
+                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.InvokeContextMenuItem, ("DataPackage", JsonConvert.SerializeObject(ClonePackage)));
 
                 if (Response.ContainsKey("Success"))
                 {
@@ -1395,7 +1395,7 @@ namespace RX_Explorer.Class
 
         public async Task<string> CreateLinkAsync(LinkFileData Package)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(Package)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CreateLink, ("DataPackage", JsonConvert.SerializeObject(Package)));
 
             if (Response.TryGetValue("Success", out string NewPath))
             {
@@ -1413,7 +1413,7 @@ namespace RX_Explorer.Class
 
         public async Task UpdateLinkAsync(LinkFileData Package)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(Package)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.UpdateLink, ("DataPackage", JsonConvert.SerializeObject(Package)));
 
             if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1423,7 +1423,7 @@ namespace RX_Explorer.Class
 
         public async Task UpdateUrlAsync(UrlFileData Package)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(Package)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.UpdateUrl, ("DataPackage", JsonConvert.SerializeObject(Package)));
 
             if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1437,7 +1437,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                return JsonSerializer.Deserialize<IReadOnlyList<VariableDataPackage>>(Result);
+                return JsonConvert.DeserializeObject<IReadOnlyList<VariableDataPackage>>(Result);
             }
             else if (Response.TryGetValue("Error", out var ErrorMessage))
             {
@@ -1521,7 +1521,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                return JsonSerializer.Deserialize<LinkFileData>(Result);
+                return JsonConvert.DeserializeObject<LinkFileData>(Result);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1537,7 +1537,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                return JsonSerializer.Deserialize<UrlFileData>(Result);
+                return JsonConvert.DeserializeObject<UrlFileData>(Result);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1827,7 +1827,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string Result))
             {
-                return JsonSerializer.Deserialize<List<AssociationPackage>>(Result);
+                return JsonConvert.DeserializeObject<List<AssociationPackage>>(Result);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1859,7 +1859,7 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
             {
-                IReadOnlyList<RecycleBinItemDataPackage> RecycleItemList = JsonSerializer.Deserialize<IReadOnlyList<RecycleBinItemDataPackage>>(Result);
+                IReadOnlyList<RecycleBinItemDataPackage> RecycleItemList = JsonConvert.DeserializeObject<IReadOnlyList<RecycleBinItemDataPackage>>(Result);
 
                 List<IRecycleStorageItem> ItemResult = new List<IRecycleStorageItem>(RecycleItemList.Count);
 
@@ -1958,14 +1958,14 @@ namespace RX_Explorer.Class
             {
                 IReadOnlyDictionary<string, string> Response = await SendCommandAndReportProgressAsync(AuxiliaryTrustProcessCommandType.Delete,
                                                                                                        ProgressHandler,
-                                                                                                       ("ExecutePath", JsonSerializer.Serialize(Source)),
+                                                                                                       ("ExecutePath", JsonConvert.SerializeObject(Source)),
                                                                                                        ("PermanentDelete", Convert.ToString(PermanentDelete)));
 
                 if (Response.TryGetValue("Success", out string Record))
                 {
                     if (!PermanentDelete && !SkipOperationRecord)
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        OperationRecorder.Current.Push(JsonConvert.DeserializeObject<string[]>(Convert.ToString(Record)));
                     }
                 }
                 else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
@@ -2053,14 +2053,14 @@ namespace RX_Explorer.Class
             {
                 IReadOnlyDictionary<string, string> Response = await SendCommandAndReportProgressAsync(AuxiliaryTrustProcessCommandType.Move,
                                                                                                        ProgressHandler,
-                                                                                                       ("SourcePath", JsonSerializer.Serialize(ItemList)),
+                                                                                                       ("SourcePath", JsonConvert.SerializeObject(ItemList)),
                                                                                                        ("DestinationPath", DestinationPath),
                                                                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option)));
                 if (Response.TryGetValue("Success", out string Record))
                 {
                     if (!SkipOperationRecord)
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        OperationRecorder.Current.Push(JsonConvert.DeserializeObject<string[]>(Convert.ToString(Record)));
                     }
                 }
                 else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
@@ -2160,7 +2160,7 @@ namespace RX_Explorer.Class
             {
                 IReadOnlyDictionary<string, string> Response = await SendCommandAndReportProgressAsync(AuxiliaryTrustProcessCommandType.Copy,
                                                                                                        ProgressHandler,
-                                                                                                       ("SourcePath", JsonSerializer.Serialize(ItemList)),
+                                                                                                       ("SourcePath", JsonConvert.SerializeObject(ItemList)),
                                                                                                        ("DestinationPath", DestinationPath),
                                                                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option)));
 
@@ -2168,7 +2168,7 @@ namespace RX_Explorer.Class
                 {
                     if (!SkipOperationRecord)
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        OperationRecorder.Current.Push(JsonConvert.DeserializeObject<string[]>(Convert.ToString(Record)));
                     }
                 }
                 else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
@@ -2234,7 +2234,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(OriginPathList), "Parameter could not be null or empty");
             }
 
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RestoreRecycleItem, ("ExecutePath", JsonSerializer.Serialize(OriginPathList)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RestoreRecycleItem, ("ExecutePath", JsonConvert.SerializeObject(OriginPathList)));
 
             if (Response.TryGetValue("Restore_Result", out string Result))
             {

@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using Newtonsoft.Json;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
@@ -16,7 +17,6 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -282,7 +282,7 @@ namespace RX_Explorer.Class
 
                     using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                     {
-                        PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                        PathList.AddRange(JsonConvert.DeserializeObject<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
@@ -295,7 +295,7 @@ namespace RX_Explorer.Class
 
                     using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                     {
-                        PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                        PathList.AddRange(JsonConvert.DeserializeObject<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
@@ -325,7 +325,7 @@ namespace RX_Explorer.Class
 
                 if (PathOnlyList.Any())
                 {
-                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathOnlyList))));
+                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(PathOnlyList))));
                 }
 
                 Package.Properties.ApplicationName = Windows.ApplicationModel.Package.Current.DisplayName;

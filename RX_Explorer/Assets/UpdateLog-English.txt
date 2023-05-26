@@ -1,9 +1,15 @@
-﻿###What's new in Ver.8.3.0
+﻿###What's new in Ver.8.3.1
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
 >##### Windows App Sdk is an alternative framework for Uwp. The new version was released on May 1 ([Click here to download](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3)), users who have purchased the Uwp one can go to "Settings - Version" to get the activation code
 
-##### Bug Fixes
+##### Bug fixes
 
->##### Fixed some translation issues
+>##### Addresses an issue where the "Redemption Code Dialog" may not be read-only in some cases
+
+>##### Addresses an issue where folders are not imported and exported correctly in "Security Area"
+
+##### Other
+
+>##### Updated some third-party libraries

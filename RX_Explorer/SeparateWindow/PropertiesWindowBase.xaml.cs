@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using FluentFTP;
 using Microsoft.Toolkit.Deferred;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -13,7 +14,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,7 +101,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 if (ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] is string SizeConfigText)
                 {
-                    WindowSizeConfiguration SizeConfig = JsonSerializer.Deserialize<WindowSizeConfiguration>(SizeConfigText);
+                    WindowSizeConfiguration SizeConfig = JsonConvert.DeserializeObject<WindowSizeConfiguration>(SizeConfigText);
                     return new Size(SizeConfig.Width, SizeConfig.Height);
                 }
                 else
@@ -200,7 +200,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private void Window_CloseRequested(AppWindow sender, AppWindowCloseRequestedEventArgs args)
         {
             AppWindowPlacement Placement = Window.GetPlacement();
-            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonSerializer.Serialize(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
+            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonConvert.SerializeObject(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
         }
 
         private PropertiesWindowBase(AppWindow Window, DriveDataBase RootDrive) : this(Window)
@@ -328,7 +328,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private async Task CloseWindowAsync(bool SaveConfig)
         {
             AppWindowPlacement Placement = Window.GetPlacement();
-            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonSerializer.Serialize(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
+            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonConvert.SerializeObject(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
 
             if (SaveConfig)
             {

@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Deferred;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using Nito.AsyncEx;
 using QRCoder;
 using RX_Explorer.Class;
@@ -17,7 +18,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -3132,7 +3132,7 @@ namespace RX_Explorer.View
                 {
                     SetExtraInformationOnCurrentFolderAsync(),
                     ListViewHeaderFilter.SetDataSourceAsync(FileCollection),
-                    MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList))
+                    MonitorTrustProcessController.SetRecoveryDataAsync(JsonConvert.SerializeObject(TabViewContainer.Current.OpenedPathList))
                 });
             }
         }
@@ -6836,7 +6836,7 @@ namespace RX_Explorer.View
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                string StartupArgument = Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]>
                 {
                     new string[]{ Folder.Path }
                 }));

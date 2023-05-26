@@ -4,7 +4,4 @@
 		<LangVersion>latest</LangVersion>
 		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="System.Text.Json" Version="5.0.2" />
-	</ItemGroup>
 </Project>

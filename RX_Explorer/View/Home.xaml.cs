@@ -1,6 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1508,7 +1507,7 @@ namespace RX_Explorer.View
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
-                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                string StartupArgument = Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]>
                 {
                     new string[]{ Lib.Path }
                 }));
@@ -1517,7 +1516,7 @@ namespace RX_Explorer.View
             }
             else if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
-                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                string StartupArgument = Uri.EscapeDataString(JsonConvert.SerializeObject(new List<string[]>
                 {
                     new string[]{ Drive.Path }
                 }));

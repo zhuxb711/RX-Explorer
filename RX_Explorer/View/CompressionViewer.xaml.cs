@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using Newtonsoft.Json;
 using PropertyChanged;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -12,7 +13,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -1179,7 +1179,7 @@ namespace RX_Explorer.View
                                 if (ChildItemsPath.Count > 0)
                                 {
                                     CancelToken.ThrowIfCancellationRequested();
-                                    Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItemsPath))));
+                                    Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(ChildItemsPath))));
                                     return;
                                 }
                             }
@@ -1199,7 +1199,7 @@ namespace RX_Explorer.View
                             LogTracer.Log(ex, "Decompression failed for unknown exception");
                         }
 
-                        Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))));
+                        Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(Array.Empty<string>()))));
                     }
                     finally
                     {

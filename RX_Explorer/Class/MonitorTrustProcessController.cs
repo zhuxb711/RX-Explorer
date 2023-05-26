@@ -1,10 +1,10 @@
-﻿using SharedLibrary;
+﻿using Newtonsoft.Json;
+using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -140,26 +140,15 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        private static async Task<IDictionary<string, string>> SendCommandAsync(MonitorCommandType Type, params (string, string)[] Arguments)
+        private static async Task<IDictionary<string, string>> SendCommandAsync(MonitorCommandType Type, params (string Key, string Value)[] Arguments)
         {
             try
             {
                 if (IsConnected)
                 {
-                    Dictionary<string, string> Command = new Dictionary<string, string>
-                    {
-                        { "CommandType", Enum.GetName(typeof(MonitorCommandType), Type) }
-                    };
-
-                    foreach ((string, object) Argument in Arguments)
-                    {
-                        Command.Add(Argument.Item1, Convert.ToString(Argument.Item2));
-                    }
-
                     InternalCommandQueueItem CommandItem = new InternalCommandQueueItem();
                     CommandQueue.Enqueue(CommandItem);
-                    PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
-
+                    PipeCommandWriteController.SendData(JsonConvert.SerializeObject(new Dictionary<string, string>(Arguments.Select((Argument) => new KeyValuePair<string, string>(Argument.Key, Argument.Value)).Prepend(new KeyValuePair<string, string>("CommandType", Enum.GetName(typeof(MonitorCommandType), Type))))));
                     return await CommandItem.TaskSource.Task;
                 }
                 else
@@ -210,7 +199,7 @@ namespace RX_Explorer.Class
                             { "LogRecordFolderPath", ApplicationData.Current.TemporaryFolder.Path }
                         };
 
-                        PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
+                        PipeCommunicationBaseController.SendData(JsonConvert.SerializeObject(Command));
 
                         if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(PipeConnectionTimeout),
                                                 PipeCommandReadController.WaitForConnectionAsync(PipeConnectionTimeout)))
@@ -248,7 +237,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        ResponseSet = CommandObject.TaskSource.TrySetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                        ResponseSet = CommandObject.TaskSource.TrySetResult(JsonConvert.DeserializeObject<IDictionary<string, string>>(e.Data));
                     }
                     catch (Exception ex)
                     {

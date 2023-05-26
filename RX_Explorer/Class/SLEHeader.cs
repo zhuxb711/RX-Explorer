@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace RX_Explorer.Class
@@ -114,7 +114,7 @@ namespace RX_Explorer.Class
 
                             if (HeaderBytes.Length == HeaderSize)
                             {
-                                return new SLEHeader(JsonSerializer.Deserialize<SLEHeaderCore>(HeaderEncoding.GetString(HeaderBytes)), HeaderEncoding, HeaderSize + BitConverter.GetBytes(int.MaxValue).Length);
+                                return new SLEHeader(JsonConvert.DeserializeObject<SLEHeaderCore>(HeaderEncoding.GetString(HeaderBytes)), HeaderEncoding, HeaderSize + BitConverter.GetBytes(int.MaxValue).Length);
                             }
                             else
                             {
@@ -148,9 +148,9 @@ namespace RX_Explorer.Class
             {
                 using (BinaryWriter Writer = new BinaryWriter(BaseFileStream, HeaderEncoding, true))
                 {
-                    string HeaderContent = JsonSerializer.Serialize(Core);
+                    string HeaderContent = JsonConvert.SerializeObject(Core);
                     Writer.Write(HeaderEncoding.GetByteCount(HeaderContent));
-                    Writer.Write(HeaderEncoding.GetBytes(JsonSerializer.Serialize(Core)));
+                    Writer.Write(HeaderEncoding.GetBytes(JsonConvert.SerializeObject(Core)));
                     Writer.Flush();
                 }
             }

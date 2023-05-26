@@ -1,10 +1,10 @@
 ﻿using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 using RX_Explorer.View;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Windows.System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -123,7 +123,7 @@ namespace RX_Explorer.Class
 
                                 if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
                                 {
-                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                    RecoveryData = JsonConvert.SerializeObject(TabViewContainer.Current.OpenedPathList);
                                 }
 
                                 if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
 
                                 if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
                                 {
-                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                    RecoveryData = JsonConvert.SerializeObject(TabViewContainer.Current.OpenedPathList);
                                 }
 
                                 if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
@@ -191,7 +191,7 @@ namespace RX_Explorer.Class
 
                                 if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
                                 {
-                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                    RecoveryData = JsonConvert.SerializeObject(TabViewContainer.Current.OpenedPathList);
                                 }
 
                                 if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
@@ -225,7 +225,7 @@ namespace RX_Explorer.Class
 
                                 if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
                                 {
-                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                    RecoveryData = JsonConvert.SerializeObject(TabViewContainer.Current.OpenedPathList);
                                 }
 
                                 if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
