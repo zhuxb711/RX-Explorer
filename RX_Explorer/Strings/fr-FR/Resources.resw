@@ -3753,4 +3753,7 @@ Les noms non valides incluent
   <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
     <value>Obtenir le code d’activation Windows App SDK</value>
   </data>
+  <data name="CodeValidDate" xml:space="preserve">
+    <value>Période de validité de l’échange</value>
+  </data>
 </root>

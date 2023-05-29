@@ -4988,6 +4988,10 @@ Las denominaciones no válidas son:
           <source>Get the Windows App SDK activation code</source>
           <target state="translated">Obtenga el código de activación Windows App Sdk</target>
         </trans-unit>
+        <trans-unit id="CodeValidDate" translate="yes" xml:space="preserve">
+          <source>Redemption validity period</source>
+          <target state="translated">Período de validez del reembolso</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3755,4 +3755,7 @@ Inkorrekte Namen sind
   <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
     <value>Abrufen des Aktivierungscodes für das Windows App SDK</value>
   </data>
+  <data name="CodeValidDate" xml:space="preserve">
+    <value>Gültigkeitsdauer der Einlösung</value>
+  </data>
 </root>

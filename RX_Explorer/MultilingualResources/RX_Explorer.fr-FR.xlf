@@ -4988,6 +4988,10 @@ Les noms non valides incluent
           <source>Get the Windows App SDK activation code</source>
           <target state="translated">Obtenir le code d’activation Windows App SDK</target>
         </trans-unit>
+        <trans-unit id="CodeValidDate" translate="yes" xml:space="preserve">
+          <source>Redemption validity period</source>
+          <target state="translated">Période de validité de l’échange</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -28,6 +28,8 @@ namespace RX_Explorer.Dialog
                 ActivateCodeTextBox.Text = string.Empty;
                 ActivateCodeTextBox.IsEnabled = false;
                 ActivateUrlTextBox.Text = string.Empty;
+                CodeValidDate.Text = string.Empty;
+                CodeValidDate.Visibility = Visibility.Collapsed;
                 ActivateUrlTextBox.Visibility = Visibility.Collapsed;
                 GetActivationCodeTextContent.Visibility = Visibility.Collapsed;
                 GetActivationCodeButton.Visibility = Visibility.Visible;
@@ -68,7 +70,9 @@ namespace RX_Explorer.Dialog
                             RedeemCodeContentResponseDto RedeemCodeResponse = await BackendHelper.RedeemCodeAsync(await MSStoreHelper.GetCustomerCollectionsIdAsync(AADTokenResponse.AADToken, AccountName));
                             ActivateCodeTextBox.Text = RedeemCodeResponse.ActivationCode;
                             ActivateUrlTextBox.Text = RedeemCodeResponse.ActivationUrl;
+                            CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
                             ActivateUrlTextBox.Visibility = Visibility.Visible;
+                            CodeValidDate.Visibility = Visibility.Visible;
                             GetActivationCodeButton.Visibility = Visibility.Collapsed;
                         }
                         catch (Exception ex)

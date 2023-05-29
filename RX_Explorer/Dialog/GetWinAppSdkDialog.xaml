@@ -4,6 +4,7 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                         mc:Ignorable="d"
                         Title="{x:Bind Cls:Globalization.GetString('GetWinAppSdk_Dialog_Title')}"
                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}"
@@ -21,6 +22,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -35,6 +37,14 @@
                      IsReadOnly="True"
                      Visibility="Collapsed"
                      Name="ActivateUrlTextBox" />
+            <TextBlock x:Name="CodeValidDate"
+                       Grid.Row="2"
+                       Foreground="Yellow"
+                       Margin="0,10,0,0"
+                       FontStyle="Italic"
+                       TextWrapping="Wrap"
+                       TextDecorations="Underline"
+                       Visibility="Collapsed"/>
             <Button Grid.Column="1"
                     Margin="5,0,0,0"
                     x:Name="ActivateCodeCopy"
@@ -66,8 +76,10 @@
                 <Grid>
                     <TextBlock Text="{x:Bind Cls:Globalization.GetString('GetWinAppSdk_Dialog_Download_Button')}"
                                Name="GetActivationCodeTextContent" />
-                    <ProgressRing IsActive="True"
-                                  Visibility="{x:Bind GetActivationCodeTextContent.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
+                    <muxc:ProgressRing IsActive="True"
+                                       Width="20"
+                                       Height="20"
+                                       Visibility="{x:Bind GetActivationCodeTextContent.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                 </Grid>
             </Button>
         </Grid>

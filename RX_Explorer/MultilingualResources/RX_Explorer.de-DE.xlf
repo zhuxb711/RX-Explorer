@@ -4988,6 +4988,10 @@ Inkorrekte Namen sind
           <source>Get the Windows App SDK activation code</source>
           <target state="translated">Abrufen des Aktivierungscodes für das Windows App SDK</target>
         </trans-unit>
+        <trans-unit id="CodeValidDate" translate="yes" xml:space="preserve">
+          <source>Redemption validity period</source>
+          <target state="translated">Gültigkeitsdauer der Einlösung</target>
+        </trans-unit>
       </group>
     </body>
   </file>

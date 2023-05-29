@@ -4988,6 +4988,10 @@ Invalid names include
           <source>Get the Windows App SDK activation code</source>
           <target state="translated">獲取 Windows App SDK 啟動碼</target>
         </trans-unit>
+        <trans-unit id="CodeValidDate" translate="yes" xml:space="preserve">
+          <source>Redemption validity period</source>
+          <target state="translated">兑换有效期</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -248,7 +248,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                         MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is INotWin32StorageItem) ? 1 : 2))
+                        while (PivotControl.Items.Count > 1)
                         {
                             PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                         }
