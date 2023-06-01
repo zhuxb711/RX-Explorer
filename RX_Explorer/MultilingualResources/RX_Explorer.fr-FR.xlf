@@ -4992,6 +4992,22 @@ Les noms non valides incluent
           <source>Redemption validity period</source>
           <target state="translated">Période de validité de l’échange</target>
         </trans-unit>
+        <trans-unit id="ContactDeveloper_RedeemActivationCode" translate="yes" xml:space="preserve">
+          <source>Redeem the activation code</source>
+          <target state="translated">Utiliser le code d’activation</target>
+        </trans-unit>
+        <trans-unit id="ContactDeveloper_YourAccount" translate="yes" xml:space="preserve">
+          <source>Your Microsoft account</source>
+          <target state="translated">Votre compte Microsoft</target>
+        </trans-unit>
+        <trans-unit id="ContactDeveloper_YourOrderScreenshot" translate="yes" xml:space="preserve">
+          <source>Your orders history screenshot about RX-Explorer in your Microsoft account</source>
+          <target state="translated">Capture d’écran de l’historique de vos commandes sur RX-Explorer dans votre compte Microsoft</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Can't redeem your activation code? Click to contact developer</source>
+          <target state="translated">Vous ne parvenez pas à utiliser votre code d’activation ? Cliquez pour contacter le développeur</target>
+        </trans-unit>
       </group>
     </body>
   </file>

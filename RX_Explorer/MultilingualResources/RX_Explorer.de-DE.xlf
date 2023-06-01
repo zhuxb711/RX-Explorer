@@ -4992,6 +4992,22 @@ Inkorrekte Namen sind
           <source>Redemption validity period</source>
           <target state="translated">Gültigkeitsdauer der Einlösung</target>
         </trans-unit>
+        <trans-unit id="ContactDeveloper_RedeemActivationCode" translate="yes" xml:space="preserve">
+          <source>Redeem the activation code</source>
+          <target state="translated">Aktivierungscode einlösen</target>
+        </trans-unit>
+        <trans-unit id="ContactDeveloper_YourAccount" translate="yes" xml:space="preserve">
+          <source>Your Microsoft account</source>
+          <target state="translated">Ihr Microsoft-Konto</target>
+        </trans-unit>
+        <trans-unit id="ContactDeveloper_YourOrderScreenshot" translate="yes" xml:space="preserve">
+          <source>Your orders history screenshot about RX-Explorer in your Microsoft account</source>
+          <target state="translated">Screenshot Ihres Bestellverlaufs über RX-Explorer in Ihrem Microsoft-Konto</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Can't redeem your activation code? Click to contact developer</source>
+          <target state="translated">Sie können Ihren Aktivierungscode nicht einlösen? Klicken Sie hier, um den Entwickler zu kontaktieren</target>
+        </trans-unit>
       </group>
     </body>
   </file>

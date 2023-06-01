@@ -33,6 +33,7 @@ namespace RX_Explorer.Dialog
                 ActivateUrlTextBox.Visibility = Visibility.Collapsed;
                 GetActivationCodeTextContent.Visibility = Visibility.Collapsed;
                 GetActivationCodeButton.Visibility = Visibility.Visible;
+                ContactDeveloper.Visibility = Visibility.Collapsed;
 
                 try
                 {
@@ -61,6 +62,7 @@ namespace RX_Explorer.Dialog
                     {
                         ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
                         ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Empty_AccountName");
+                        ContactDeveloper.Visibility = Visibility.Visible;
                     }
                     else
                     {
@@ -77,18 +79,19 @@ namespace RX_Explorer.Dialog
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, $"Could not download the activation code, reason: {ex.Message}");
-
                             ActivateCodeTextBox.PlaceholderText = ex.Message;
                             ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
+                            ContactDeveloper.Visibility = Visibility.Visible;
+                            LogTracer.Log(ex, $"Could not download the activation code, reason: {ex.Message}");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Could not retrieve the activation code");
                     ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
                     ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Unknown_Exception");
+                    ContactDeveloper.Visibility = Visibility.Visible;
+                    LogTracer.Log(ex, "Could not retrieve the activation code");
                 }
                 finally
                 {
@@ -124,6 +127,11 @@ namespace RX_Explorer.Dialog
             Package.SetText(ActivateUrlTextBox.Text);
 
             Clipboard.SetContent(Package);
+        }
+
+        private async void ContactDeveloper_Click(object sender, RoutedEventArgs e)
+        {
+            await Launcher.LaunchUriAsync(new Uri($"mailto:zrfcfgs@outlook.com?subject={Uri.EscapeDataString(Globalization.GetString("ContactDeveloper_RedeemActivationCode"))}&body={Uri.EscapeDataString($"{Globalization.GetString("ContactDeveloper_YourAccount")}: {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Globalization.GetString("ContactDeveloper_YourOrderScreenshot")}:{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}")}"));
         }
     }
 }

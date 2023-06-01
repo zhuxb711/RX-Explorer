@@ -3863,4 +3863,16 @@ Invalid names include
   <data name="CodeValidDate" xml:space="preserve">
     <value>Redemption validity period</value>
   </data>
+  <data name="ContactDeveloper_RedeemActivationCode" xml:space="preserve">
+    <value>Redeem the activation code</value>
+  </data>
+  <data name="ContactDeveloper_YourAccount" xml:space="preserve">
+    <value>Your Microsoft account</value>
+  </data>
+  <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
+    <value>Your orders history screenshot about RX-Explorer in your Microsoft account</value>
+  </data>
+  <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
+    <value>Can't redeem your activation code? Click to contact developer</value>
+  </data>
 </root>

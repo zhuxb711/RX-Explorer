@@ -3756,4 +3756,16 @@ Les noms non valides incluent
   <data name="CodeValidDate" xml:space="preserve">
     <value>Période de validité de l’échange</value>
   </data>
+  <data name="ContactDeveloper_RedeemActivationCode" xml:space="preserve">
+    <value>Utiliser le code d’activation</value>
+  </data>
+  <data name="ContactDeveloper_YourAccount" xml:space="preserve">
+    <value>Votre compte Microsoft</value>
+  </data>
+  <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
+    <value>Capture d’écran de l’historique de vos commandes sur RX-Explorer dans votre compte Microsoft</value>
+  </data>
+  <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
+    <value>Vous ne parvenez pas à utiliser votre code d’activation ? Cliquez pour contacter le développeur</value>
+  </data>
 </root>

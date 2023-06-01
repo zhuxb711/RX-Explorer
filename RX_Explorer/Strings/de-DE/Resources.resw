@@ -3758,4 +3758,16 @@ Inkorrekte Namen sind
   <data name="CodeValidDate" xml:space="preserve">
     <value>Gültigkeitsdauer der Einlösung</value>
   </data>
+  <data name="ContactDeveloper_RedeemActivationCode" xml:space="preserve">
+    <value>Aktivierungscode einlösen</value>
+  </data>
+  <data name="ContactDeveloper_YourAccount" xml:space="preserve">
+    <value>Ihr Microsoft-Konto</value>
+  </data>
+  <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
+    <value>Screenshot Ihres Bestellverlaufs über RX-Explorer in Ihrem Microsoft-Konto</value>
+  </data>
+  <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
+    <value>Sie können Ihren Aktivierungscode nicht einlösen? Klicken Sie hier, um den Entwickler zu kontaktieren</value>
+  </data>
 </root>

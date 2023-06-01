@@ -3758,4 +3758,16 @@ Las denominaciones no válidas son:
   <data name="CodeValidDate" xml:space="preserve">
     <value>Período de validez del reembolso</value>
   </data>
+  <data name="ContactDeveloper_RedeemActivationCode" xml:space="preserve">
+    <value>Canjear el código de activación</value>
+  </data>
+  <data name="ContactDeveloper_YourAccount" xml:space="preserve">
+    <value>Tu cuenta Microsoft</value>
+  </data>
+  <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
+    <value>Captura de pantalla del historial de pedidos sobre RX-Explorer en su cuenta Microsoft</value>
+  </data>
+  <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
+    <value>¿No puedes canjear tu código de activación? Haga clic para ponerse en contacto con el desarrollador</value>
+  </data>
 </root>

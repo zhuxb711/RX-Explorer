@@ -45,6 +45,13 @@
                        TextWrapping="Wrap"
                        TextDecorations="Underline"
                        Visibility="Collapsed"/>
+            <HyperlinkButton x:Name="ContactDeveloper"
+                             Grid.Row="2"
+                             Margin="0,10,0,0"
+                             x:Uid="GetWinAppSdkDialogContactDeveloper"
+                             Content="无法兑换激活码? 点击联系开发者"
+                             Visibility="Collapsed"
+                             Click="ContactDeveloper_Click"/>
             <Button Grid.Column="1"
                     Margin="5,0,0,0"
                     x:Name="ActivateCodeCopy"

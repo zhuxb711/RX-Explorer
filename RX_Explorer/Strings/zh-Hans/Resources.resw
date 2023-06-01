@@ -3748,12 +3748,24 @@
     <value>缺少微软账户名，无法进行兑换操作</value>
   </data>
   <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
-    <value>已購買UWP版本的使用者可以按下此處獲取基於WinUI3和WinAppSdk重構的新版本啟動碼</value>
+    <value>已购买UWP版本的用户可以点击此处获取基于WinUI3和WinAppSdk重构的新版本激活码</value>
   </data>
   <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
-    <value>獲取 Windows App SDK 啟動碼</value>
+    <value>获取 Windows App Sdk 版本激活码</value>
   </data>
   <data name="CodeValidDate" xml:space="preserve">
     <value>兑换有效期</value>
+  </data>
+  <data name="ContactDeveloper_RedeemActivationCode" xml:space="preserve">
+    <value>兑换激活码</value>
+  </data>
+  <data name="ContactDeveloper_YourAccount" xml:space="preserve">
+    <value>您的微软账号名称</value>
+  </data>
+  <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
+    <value>您的微软账号中有关RX文件管理器的订单历史截图</value>
+  </data>
+  <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
+    <value>无法兑换激活码? 点击联系开发者</value>
   </data>
 </root>
