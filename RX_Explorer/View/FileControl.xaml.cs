@@ -2233,14 +2233,14 @@ namespace RX_Explorer.View
                 e.Handled = true;
                 e.AcceptedOperation = DataPackageOperation.None;
 
-                if (sender is Button Btn && Btn.DataContext is AddressBlock Block)
+                if ((sender as FrameworkElement)?.DataContext is AddressBlock Block)
                 {
                     if (e.DataView.Contains(StandardDataFormats.StorageItems)
                         || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
                         || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
                         || e.DataView.Contains(ExtendedDataFormats.FileDrop))
                     {
-                        if (!Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                        if (!RootVirtualFolder.Current.Path.Equals(Block.Path, StringComparison.OrdinalIgnoreCase))
                         {
                             e.DragUIOverride.IsContentVisible = true;
                             e.DragUIOverride.IsGlyphVisible = true;
@@ -2251,23 +2251,23 @@ namespace RX_Explorer.View
                                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
                                     e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Block.DisplayName}\"";
                                 }
                                 else
                                 {
                                     e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Block.DisplayName}\"";
                                 }
                             }
                             else if (e.AllowedOperations.HasFlag(DataPackageOperation.Copy))
                             {
                                 e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Block.DisplayName}\"";
                             }
                             else if (e.AllowedOperations.HasFlag(DataPackageOperation.Move))
                             {
                                 e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Block.DisplayName}\"";
                             }
                         }
                     }
