@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -493,6 +494,82 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<RedeemCodeContentResponseDto> GetRedeemCodeFromBackendAsync(string CustomerCollectionId, CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetRedeemCodeFromBackendAsync)}");
+                }
+            }))
+            {
+                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RedeemCodeFromBackend, ("CustomerCollectionId", CustomerCollectionId));
+
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonConvert.DeserializeObject<RedeemCodeContentResponseDto>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    throw new Exception(ErrorMessage);
+                }
+
+                throw new Exception("Could not get a redeem code from backend");
+            }
+        }
+
+        public async Task<Visibility> GetRedeemVisibilityStatusFromBackendAsync(CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetRedeemCodeFromBackendAsync)}");
+                }
+            }))
+            {
+                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RedeemVisibilityStatusFromBackend);
+
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToBoolean(RawText) ? Visibility.Visible : Visibility.Collapsed;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    throw new Exception(ErrorMessage);
+                }
+
+                throw new Exception("Could not check the redeem visiblity from backend");
+            }
+        }
+
+        public async Task<string> GetAADTokenFromBackendAsync(CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetRedeemCodeFromBackendAsync)}");
+                }
+            }))
+            {
+                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RetrieveAADTokenFromBackend);
+
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return RawText;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    throw new Exception(ErrorMessage);
+                }
+
+                throw new Exception("Could not get the AAD token from backend");
+            }
+        }
+
+
         public async Task<short> GetAvailableNetworkPortAsync()
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort);
@@ -503,7 +580,7 @@ namespace RX_Explorer.Class
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(GetAvailableNetworkPortAsync)}, message: {ErrorMessage}");
+                throw new Exception(ErrorMessage);
             }
 
             throw new Exception("Could not get an available port");

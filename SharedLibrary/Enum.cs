@@ -167,6 +167,9 @@
         GetFileAttribute,
         GetProcessHandle,
         SetWallpaperImage,
-        GetAvailableNetworkPort
+        GetAvailableNetworkPort,
+        RetrieveAADTokenFromBackend,
+        RedeemCodeFromBackend,
+        RedeemVisibilityStatusFromBackend
     }
 }

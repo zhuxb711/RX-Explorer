@@ -94,7 +94,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
-    <Compile Include="Class\BackendHelper.cs" />
     <Compile Include="Class\Execution.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\FtpClientController.cs" />
@@ -106,15 +105,6 @@
     <Compile Include="Class\FtpSafeWriteStream.cs" />
     <Compile Include="Class\FtpStorageFile.cs" />
     <Compile Include="Class\FtpStorageFolder.cs" />
-    <Compile Include="Class\RedeemVisibilityStatusResponse.cs" />
-    <Compile Include="Class\RedeemVisibilityStatusResponseContent.cs" />
-    <Compile Include="Class\ResponseBase.cs" />
-    <Compile Include="Class\ResponseBaseGeneric.cs" />
-    <Compile Include="Class\RetrieveAADTokenContentResponseDto.cs" />
-    <Compile Include="Class\RetrieveAADTokenResponseDto.cs" />
-    <Compile Include="Class\RedeemCodeContentResponseDto.cs" />
-    <Compile Include="Class\RedeemCodeRequestDto.cs" />
-    <Compile Include="Class\RedeemCodeResponseDto.cs" />
     <Compile Include="Class\Helper.cs" />
     <Compile Include="Class\InterlockedNoReentryExecution.cs" />
     <Compile Include="Class\LabelCollectionVirtualFolder.cs" />

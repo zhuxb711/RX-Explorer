@@ -1203,11 +1203,10 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        RedeemVisibilityStatusResponse CorrectResponse = await BackendHelper.CheckRedeemVisibilityStatusAsync();
-
-                        if (CorrectResponse.Content.SwitchStatus)
+                        using (CancellationTokenSource Cancellation = new CancellationTokenSource(60000))
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
                         {
-                            GetWinAppSdkButton.Visibility = Visibility.Visible;
+                            GetWinAppSdkButton.Visibility = await Exclusive.Controller.GetRedeemVisibilityStatusFromBackendAsync(Cancellation.Token);
                         }
                     }
                     catch (Exception ex)

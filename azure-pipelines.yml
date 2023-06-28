@@ -37,7 +37,7 @@ variables:
 jobs:
   - job: CIBuild
     displayName: "Build CI Application"
-    timeoutInMinutes: 0
+    timeoutInMinutes: 30
     pool:
       vmImage: "windows-latest"
     steps:
@@ -93,14 +93,28 @@ jobs:
         inputs:
           targetType: "inline"
           script: |
-            Write-Host "Start adding AppCenter Secret Value."
+            Write-Host "Start adding AppCenter secret value."
 
             $AppCenterSecret = '$(appCenter.secret)'
             $TargetPath = '$(Build.SourcesDirectory)\RX_Explorer\View\ExtendedSplash.xaml.cs'
             $TargetContent = Get-Content -Path $TargetPath
             $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding UTF8
 
-            Write-Host "AppCenter Secret Value was added successfully"
+            Write-Host "AppCenter secret value was added successfully"
+
+      - task: PowerShell@2
+        displayName: "Add Client Certificate Secret Value"
+        inputs:
+          targetType: "inline"
+          script: |
+            Write-Host "Start adding client certificate secret value."
+
+            $ClientCertificateSecret = '$(clientCert.secret)'
+            $TargetPath = '$(Build.SourcesDirectory)\AuxiliaryTrustProcess\Class\BackendUtil.cs'
+            $TargetContent = Get-Content -Path $TargetPath
+            $TargetContent -Replace '<RX-Explorer-Client-Certificate-Secret-Value>', $ClientCertificateSecret | Set-Content -Path $TargetPath -Encoding UTF8
+
+            Write-Host "Client certificate secret value was added successfully"
 
       - task: NuGetToolInstaller@1
         displayName: "Install Nuget ToolSet"
@@ -127,7 +141,7 @@ jobs:
 
   - job: SideLoadBuild
     displayName: "Build Sideload Application"
-    timeoutInMinutes: 0
+    timeoutInMinutes: 180
     pool:
       vmImage: "windows-latest"
     steps:

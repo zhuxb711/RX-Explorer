@@ -1,7 +1,9 @@
 ﻿using RX_Explorer.Class;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
@@ -68,14 +70,21 @@ namespace RX_Explorer.Dialog
                     {
                         try
                         {
-                            RetrieveAADTokenContentResponseDto AADTokenResponse = await BackendHelper.RetrieveAADTokenAsync();
-                            RedeemCodeContentResponseDto RedeemCodeResponse = await BackendHelper.RedeemCodeAsync(await MSStoreHelper.GetCustomerCollectionsIdAsync(AADTokenResponse.AADToken, AccountName));
-                            ActivateCodeTextBox.Text = RedeemCodeResponse.ActivationCode;
-                            ActivateUrlTextBox.Text = RedeemCodeResponse.ActivationUrl;
-                            CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
-                            ActivateUrlTextBox.Visibility = Visibility.Visible;
-                            CodeValidDate.Visibility = Visibility.Visible;
-                            GetActivationCodeButton.Visibility = Visibility.Collapsed;
+                            using(CancellationTokenSource Cancellation =  new CancellationTokenSource(60000))
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
+                            {
+                                string AADToken = await Exclusive.Controller.GetAADTokenFromBackendAsync(Cancellation.Token);
+                                string CustomerCollectionsId = await MSStoreHelper.GetCustomerCollectionsIdAsync(AADToken, AccountName);
+
+                                RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, Cancellation.Token);
+
+                                ActivateCodeTextBox.Text = RedeemCodeResponse.RedeemCode;
+                                ActivateUrlTextBox.Text = RedeemCodeResponse.RedeemUrl;
+                                CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
+                                ActivateUrlTextBox.Visibility = Visibility.Visible;
+                                CodeValidDate.Visibility = Visibility.Visible;
+                                GetActivationCodeButton.Visibility = Visibility.Collapsed;
+                            }
                         }
                         catch (Exception ex)
                         {

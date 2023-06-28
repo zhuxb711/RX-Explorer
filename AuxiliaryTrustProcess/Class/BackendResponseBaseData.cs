@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace RX_Explorer.Class
+namespace AuxiliaryTrustProcess.Class
 {
-    public class ResponseBase
+    internal class BackendResponseBaseData
     {
-        public int StatusCode { get; }
+        public string Status { get; }
 
         public string Service { get; }
 
@@ -12,9 +12,9 @@ namespace RX_Explorer.Class
 
         public DateTimeOffset TimeStamp { get; }
 
-        public ResponseBase(int StatusCode, string Service, string ErrorMessage, DateTimeOffset TimeStamp)
+        public BackendResponseBaseData(string Status, string Service, string ErrorMessage, DateTimeOffset TimeStamp)
         {
-            this.StatusCode = StatusCode;
+            this.Status = Status;
             this.Service = Service;
             this.ErrorMessage = ErrorMessage;
             this.TimeStamp = TimeStamp;

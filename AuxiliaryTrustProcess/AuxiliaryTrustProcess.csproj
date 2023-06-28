@@ -26,12 +26,20 @@
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Ssl\RX-Explorer Certificate Authority Root.cer" />
+	  <None Remove="Ssl\RX-Explorer Client Certificate.pfx" />
+	  <None Remove="Ssl\RX-Explorer Digital Secure CA.cer" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Include="..\.editorconfig">
 			<Link>.editorconfig</Link>
 		</None>
 		<Content Include="Everything64.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer" />
+		<Content Include="Ssl\RX-Explorer Client Certificate.pfx" />
+		<Content Include="Ssl\RX-Explorer Digital Secure CA.cer" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
