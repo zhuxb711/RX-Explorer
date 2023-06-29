@@ -68,21 +68,21 @@ namespace RX_Explorer.View
 
                 if (PermissionArea.Visibility == Visibility.Visible)
                 {
-                    PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
-                    PermissionArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                    Canvas.SetTop(PermissionArea, VerticalLocation + 15);
+                    Canvas.SetLeft(PermissionArea, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
                 }
 
                 if (LoadingArea.Visibility == Visibility.Visible)
                 {
-                    LoadingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingArea.ActualWidth * 0.5));
-                    LoadingArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                    Canvas.SetTop(LoadingArea, VerticalLocation + 15);
+                    Canvas.SetLeft(LoadingArea, HorizonLocation - (LoadingArea.ActualWidth * 0.5));
                 }
-
-                Logo.SetValue(Canvas.LeftProperty, Splash.ImageLocation.X);
-                Logo.SetValue(Canvas.TopProperty, Splash.ImageLocation.Y);
 
                 Logo.Height = Splash.ImageLocation.Height;
                 Logo.Width = Splash.ImageLocation.Width;
+
+                Canvas.SetTop(Logo, Splash.ImageLocation.Y);
+                Canvas.SetLeft(Logo, Splash.ImageLocation.X);
             }
         }
 

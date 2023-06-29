@@ -37,9 +37,15 @@
 		<Content Include="Everything64.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer" />
-		<Content Include="Ssl\RX-Explorer Client Certificate.pfx" />
-		<Content Include="Ssl\RX-Explorer Digital Secure CA.cer" />
+		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Ssl\RX-Explorer Client Certificate.pfx">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Ssl\RX-Explorer Digital Secure CA.cer">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />

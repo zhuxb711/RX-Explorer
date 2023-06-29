@@ -19,24 +19,24 @@
         </Grid.RowDefinitions>
 
         <Canvas Grid.RowSpan="2">
-            <Image Name="Logo"
+            <Image x:Name="Logo"
                    Source="ms-appx:///Assets/SplashScreen.png" />
             
-            <StackPanel Name="PermissionArea"
+            <StackPanel x:Name="PermissionArea"
                         Visibility="Collapsed"
                         Width="400">
-                <TextBlock Name="Display"
+                <TextBlock x:Name="Display"
                            Text="{x:Bind Cls:Globalization.GetString('ExtendedSplash_Access_Tips')}"
                            TextAlignment="Center" />
                 <StackPanel Orientation="Horizontal"
                             Margin="0,10,0,0"
                             HorizontalAlignment="Center">
-                    <Button Name="NavigationButton"
+                    <Button x:Name="NavigationButton"
                             x:Uid="PermissionButton"
                             Content="授予权限"
                             Width="120"
                             Click="NavigationButton_Click" />
-                    <Button Name="CloseButton"
+                    <Button x:Name="CloseButton"
                             Content="关闭应用"
                             x:Uid="CloseButton"
                             Margin="10,0,0,0"
@@ -44,8 +44,8 @@
                             Click="CloseButton_Click" />
                 </StackPanel>
             </StackPanel>
-            
-            <StackPanel Name="LoadingArea"
+
+            <StackPanel x:Name="LoadingArea"
                         Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">
@@ -55,7 +55,7 @@
                                        VerticalAlignment="Center"
                                        Foreground="{ThemeResource SystemBaseMediumHighColor}" />
                     <TextBlock FontSize="16"
-                               Name="LoadingText"
+                               x:Name="LoadingText"
                                Margin="10,0,0,0"
                                VerticalAlignment="Center" />
                 </StackPanel>
