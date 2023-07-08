@@ -17,7 +17,6 @@ namespace AuxiliaryTrustProcess.Class
         public static async Task<T> SendAndGetResponseAsync<T>(Uri APIEndPoint, HttpMethod Method, HttpContent Content = null, CancellationToken CancelToken = default)
         {
             using (X509Certificate2 CASubCertificate = new X509Certificate2(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ssl", "RX-Explorer Digital Secure CA.cer")))
-            using (X509Certificate2 CARootCertificate = new X509Certificate2(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ssl", "RX-Explorer Certificate Authority Root.cer")))
             using (X509Certificate2 ClientCertificate = new X509Certificate2(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ssl", "RX-Explorer Client Certificate.pfx"), "<RX-Explorer-Client-Certificate-Secret-Value>"))
             {
                 X509ChainPolicy ChainPolicy = new X509ChainPolicy
@@ -28,7 +27,6 @@ namespace AuxiliaryTrustProcess.Class
                 };
 
                 ChainPolicy.CustomTrustStore.Add(CASubCertificate);
-                ChainPolicy.CustomTrustStore.Add(CARootCertificate);
 
                 SslClientAuthenticationOptions SslOptions = new SslClientAuthenticationOptions
                 {

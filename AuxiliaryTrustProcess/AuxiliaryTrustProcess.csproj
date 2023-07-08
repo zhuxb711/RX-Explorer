@@ -26,7 +26,6 @@
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Remove="Ssl\RX-Explorer Certificate Authority Root.cer" />
 	  <None Remove="Ssl\RX-Explorer Client Certificate.pfx" />
 	  <None Remove="Ssl\RX-Explorer Digital Secure CA.cer" />
 	</ItemGroup>
@@ -36,9 +35,6 @@
 		</None>
 		<Content Include="Everything64.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Ssl\RX-Explorer Client Certificate.pfx">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
