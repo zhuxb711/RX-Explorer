@@ -26,9 +26,9 @@ variables:
   - name: TempDirectory
     value: "$(Agent.TempDirectory)"
   - name: TargetWindowsSDKVersion
-    value: "10.0.22621.755"
+    value: "10.0.22621.1778"
   - name: TargetWindowsSDKInstallerUrl # Windows SDK 10.0.22621.755
-    value: "https://download.microsoft.com/download/7/9/6/7962e9ce-cd69-4574-978c-1202654bd729/windowssdk/winsdksetup.exe"
+    value: "https://download.microsoft.com/download/b/8/5/b85bd06f-491c-4c1c-923e-75ce2fe2378e/windowssdk/winsdksetup.exe"
   - name: WindowsSDKBaseLocation
     value: '$(Agent.TempDirectory)\WinSDK'
   - name: WindowsSDKInstallerLocation
