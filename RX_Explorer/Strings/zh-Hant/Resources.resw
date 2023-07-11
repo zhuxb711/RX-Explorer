@@ -111,9 +111,6 @@
   <data name="CropperPageFlipButton.Text" xml:space="preserve">
     <value>翻轉</value>
   </data>
-  <data name="CropperPageHistogram.Text" xml:space="preserve">
-    <value>顏色分佈</value>
-  </data>
   <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
     <value>調整圖片</value>
   </data>
@@ -1405,10 +1402,6 @@
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>由於某些檔案/資料夾不存在，因此復原操作無法完成</value>
-  </data>
-  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
-    <value>Wi-Fi傳輸有意外錯誤：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
     <value>Windows Hello身份驗證失敗，您無沒有權限進入加密庫</value>

@@ -20,7 +20,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer.View
 {
-    public sealed partial class CropperPage : Page
+    public sealed partial class ImageEditor : Page
     {
         private SoftwareBitmap OriginBitmap;
         private SoftwareBitmap OriginBitmapBackup;
@@ -30,7 +30,7 @@ namespace RX_Explorer.View
         private Rect UnchangedRegion;
         private readonly ObservableCollection<ImageFilterItem> FilterCollection = new ObservableCollection<ImageFilterItem>();
 
-        public CropperPage()
+        public ImageEditor()
         {
             InitializeComponent();
 
@@ -87,13 +87,6 @@ namespace RX_Explorer.View
 
             FilterGrid.SelectedIndex = 0;
             FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
-
-            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginBitmap))
-            {
-                SoftwareBitmapSource Source = new SoftwareBitmapSource();
-                await Source.SetBitmapAsync(Histogram);
-                HistogramImage.Source = Source;
-            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -109,7 +102,6 @@ namespace RX_Explorer.View
             OriginBitmapBackup = null;
             OriginBitmap = null;
             OriginFile = null;
-            HistogramImage.Source = null;
             FilterGrid.SelectionChanged -= FilterGrid_SelectionChanged;
             FilterCollection.Clear();
         }
@@ -223,13 +215,6 @@ namespace RX_Explorer.View
             WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
             OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;
-
-            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginBitmap))
-            {
-                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                HistogramImage.Source = HBitmap;
-            }
 
             FilterBitmap?.Dispose();
             FilterBitmap = null;
@@ -407,14 +392,6 @@ namespace RX_Explorer.View
 
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
                     OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                    Cropper.Source = WBitmap;
-
-                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginBitmap))
-                    {
-                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                        HistogramImage.Source = HBitmap;
-                    }
                 }
                 else
                 {
@@ -424,13 +401,6 @@ namespace RX_Explorer.View
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterBitmap.PixelWidth, FilterBitmap.PixelHeight);
                     FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
-
-                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterBitmap))
-                    {
-                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                        HistogramImage.Source = HBitmap;
-                    }
                 }
             }
         }
@@ -448,13 +418,6 @@ namespace RX_Explorer.View
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
                     OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
-
-                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginBitmap))
-                    {
-                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                        HistogramImage.Source = HBitmap;
-                    }
                 }
                 else
                 {
@@ -464,13 +427,6 @@ namespace RX_Explorer.View
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterBitmap.PixelWidth, FilterBitmap.PixelHeight);
                     FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
-
-                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterBitmap))
-                    {
-                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                        HistogramImage.Source = HBitmap;
-                    }
                 }
             }
         }
@@ -498,13 +454,6 @@ namespace RX_Explorer.View
             WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
             FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;
-
-            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterBitmap))
-            {
-                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                HistogramImage.Source = HBitmap;
-            }
 
             ResetButton.IsEnabled = true;
         }
@@ -615,11 +564,6 @@ namespace RX_Explorer.View
                             }
                             break;
                         }
-                }
-
-                using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(Item.Type == FilterType.Origin ? OriginBitmap : FilterBitmap))
-                {
-                    HistogramImage.Source = Histogram.ToWriteableBitmap();
                 }
 
                 ResetButton.IsEnabled = true;

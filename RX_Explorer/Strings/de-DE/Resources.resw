@@ -111,9 +111,6 @@
   <data name="CropperPageFlipButton.Text" xml:space="preserve">
     <value>Kippen</value>
   </data>
-  <data name="CropperPageHistogram.Text" xml:space="preserve">
-    <value>Farbverteilung</value>
-  </data>
   <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
     <value>Bild anpassen</value>
   </data>
@@ -1454,10 +1451,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte nicht alles vollständig rückgängig gemacht werden.</value>
-  </data>
-  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
-    <value>WIFI-Übertragung hat einen unerwarteten Fehler：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
     <value>Fehler bei der Windows Hello-Authentifizierung. Sie sind nicht berechtigt, den Sicherheitsbereich zu betreten.</value>

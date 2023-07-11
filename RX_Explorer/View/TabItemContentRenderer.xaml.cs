@@ -334,7 +334,7 @@ namespace RX_Explorer.View
                     PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
                     MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
                     TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
-                    CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
+                    ImageEditor => Globalization.GetString("BuildIn_CropperPage_Description"),
                     SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
                     CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
                     FileControl => CurrentPresenter?.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",

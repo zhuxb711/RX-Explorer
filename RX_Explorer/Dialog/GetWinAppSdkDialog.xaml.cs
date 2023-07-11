@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Services.Store;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -45,7 +46,9 @@ namespace RX_Explorer.Dialog
                     {
                         IReadOnlyList<User> CurrentUsers = await User.FindAllAsync();
 
-                        foreach (User CurrentUser in CurrentUsers.Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated).Append(User.GetDefault()))
+                        foreach (User CurrentUser in CurrentUsers.Append(User.GetDefault())
+                                                                 .Append(StoreContext.GetDefault().User)
+                                                                 .Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated))
                         {
                             AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName));
 
@@ -70,7 +73,7 @@ namespace RX_Explorer.Dialog
                     {
                         try
                         {
-                            using(CancellationTokenSource Cancellation =  new CancellationTokenSource(60000))
+                            using (CancellationTokenSource Cancellation = new CancellationTokenSource(60000))
                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
                             {
                                 string AADToken = await Exclusive.Controller.GetAADTokenFromBackendAsync(Cancellation.Token);

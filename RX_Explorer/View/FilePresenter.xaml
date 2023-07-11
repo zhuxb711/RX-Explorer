@@ -77,13 +77,14 @@
         <Cls:SyncStatusVisibilityConverter x:Key="SyncStatusVisibilityConverter" />
         <Cls:SyncStatusToolTipConverter x:Key="SyncStatusToolTipConverter" />
 
-        <muxc:TeachingTip PreferredPlacement="Auto"
+        <muxc:TeachingTip x:Name="QRTeachTip"
                           Title="WIFI分享"
                           x:Uid="WIFIShareTip"
                           FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           HeroContentPlacement="Auto"
-                          Closing="QRTeachTip_Closing"
-                          x:Name="QRTeachTip">
+                          PreferredPlacement="Auto"
+                          ShouldConstrainToRootBounds="False"
+                          Closing="QRTeachTip_Closing">
             <muxc:TeachingTip.HeroContent>
                 <Grid Background="White">
                     <Image Stretch="UniformToFill"

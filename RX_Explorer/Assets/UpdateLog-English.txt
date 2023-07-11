@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.3.3
+﻿###What's new in Ver.8.3.4
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
@@ -6,4 +6,10 @@
 
 ##### General improvements
 
->##### Enable HTTPS encrypted connections when accessing backend servers
+>##### Removed unnecessary CA certificates
+
+>##### Removed color level analysis from the built-in image editor
+
+>##### Improved the mechanism of WiFi sharing
+
+>##### Update some dependencies to the latest version

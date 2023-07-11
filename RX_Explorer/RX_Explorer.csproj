@@ -363,8 +363,8 @@
     <Compile Include="View\CompressionViewer.xaml.cs">
       <DependentUpon>CompressionViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\CropperPage.xaml.cs">
-      <DependentUpon>CropperPage.xaml</DependentUpon>
+    <Compile Include="View\ImageEditor.xaml.cs">
+      <DependentUpon>ImageEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ExtendedSplash.xaml.cs">
       <DependentUpon>ExtendedSplash.xaml</DependentUpon>
@@ -729,7 +729,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\CropperPage.xaml">
+    <Page Include="View\ImageEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -854,7 +854,7 @@
       <Version>7.1.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.8.4</Version>
+      <Version>2.8.5</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>

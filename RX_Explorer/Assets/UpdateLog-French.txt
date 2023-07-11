@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.3.3
+﻿###Quoi de neuf dans la version 8.3.4
 
 ##### ⚠Attention: Uwp est obsolète, RX-Explorer a été migré vers Windows App Sdk
 
@@ -6,4 +6,10 @@
 
 ##### Améliorations générales
 
->##### Activer les connexions chiffrées HTTPS lors de l’accès aux serveurs principaux
+>##### Suppression des certificats d’autorité de certification inutiles
+
+>##### Suppression de l’analyse du niveau de couleur de l’éditeur d’image intégré
+
+>##### Amélioration du mécanisme de partage WiFi
+
+>##### Mettez à jour certaines dépendances vers la dernière version.

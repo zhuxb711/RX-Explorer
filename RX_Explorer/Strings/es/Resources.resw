@@ -111,9 +111,6 @@
   <data name="CropperPageFlipButton.Text" xml:space="preserve">
     <value>Girar</value>
   </data>
-  <data name="CropperPageHistogram.Text" xml:space="preserve">
-    <value>Distribución de color</value>
-  </data>
   <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
     <value>Ajustar imagen</value>
   </data>
@@ -1454,10 +1451,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Algunos archivos o carpetas ya no existen; la operación de deshacer no se ha podido completar del todo.</value>
-  </data>
-  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
-    <value>La transmisión wifi ha experimentado un error inesperado：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
     <value>La autenticación con Windows Hello ha fallado; no tienes permiso para entrar en el Área de seguridad.</value>

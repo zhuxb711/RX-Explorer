@@ -4616,26 +4616,23 @@ namespace RX_Explorer.View
                     QRTeachTip.IsOpen = false;
                 }
 
-                if (Interlocked.Exchange(ref WiFiProvider, null) is WiFiShareProvider PreviousProvider)
-                {
-                    PreviousProvider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
-                    PreviousProvider.Dispose();
-                }
-
                 try
                 {
-                    WiFiProvider = await WiFiShareProvider.CreateAsync(ShareFile);
-                    WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
-                    WiFiProvider.StartListenRequest();
+                    WiFiShareProvider Provider = await WiFiShareProvider.CreateAsync(ShareFile);
+
+                    if (Interlocked.Exchange(ref WiFiProvider, Provider) is WiFiShareProvider PreviousProvider)
+                    {
+                        PreviousProvider.Dispose();
+                    }
 
                     using (QRCodeGenerator QRGenerator = new QRCodeGenerator())
-                    using (QRCodeData QRData = QRGenerator.CreateQrCode(WiFiProvider.CurrentUri, QRCodeGenerator.ECCLevel.Q))
+                    using (QRCodeData QRData = QRGenerator.CreateQrCode(Provider.CurrentUri, QRCodeGenerator.ECCLevel.Q))
                     using (BitmapByteQRCode QRCode = new BitmapByteQRCode(QRData))
                     {
                         QRImage.Source = await Helper.CreateBitmapImageAsync(QRCode.GetGraphic(10), 220, 220);
                     }
 
-                    QRText.Text = WiFiProvider.CurrentUri;
+                    QRText.Text = Provider.CurrentUri;
                     QRTeachTip.Target = ItemPresenter.ContainerFromItem(ShareFile) as FrameworkElement;
                     QRTeachTip.IsOpen = true;
                 }
@@ -4651,21 +4648,6 @@ namespace RX_Explorer.View
                     }.ShowAsync();
                 }
             }
-        }
-
-        private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception ex)
-        {
-            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
-            {
-                QRTeachTip.IsOpen = false;
-
-                await new CommonContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                }.ShowAsync();
-            });
         }
 
         private void CopyLinkButton_Click(object sender, RoutedEventArgs e)
@@ -5524,10 +5506,9 @@ namespace RX_Explorer.View
 
         private void QRTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
-            if (Interlocked.Exchange(ref WiFiProvider, null) is WiFiShareProvider Provider)
+            if (Interlocked.Exchange(ref WiFiProvider, null) is WiFiShareProvider PreviousProvider)
             {
-                Provider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
-                Provider.Dispose();
+                PreviousProvider.Dispose();
             }
         }
 

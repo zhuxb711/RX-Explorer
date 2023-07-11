@@ -138,10 +138,6 @@
           <source>Flip</source>
           <target state="translated">翻转</target>
         </trans-unit>
-        <trans-unit id="CropperPageHistogram.Text" translate="yes" xml:space="preserve">
-          <source>Color distribution</source>
-          <target state="translated">色阶分布</target>
-        </trans-unit>
         <trans-unit id="CropperPageImageAdjustTitle.Text" translate="yes" xml:space="preserve">
           <source>Adjust image</source>
           <target state="translated">图像调整</target>
@@ -1830,11 +1826,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
           <source>An exception occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">由于部分文件/文件夹已不存在，因此撤销操作未能完全完成</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
-          <source>WIFI transmission has an unexpected error：\r</source>
-          <target state="translated">WIFI传输出现意外错误：\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_WinHelloAuthFail_Content" translate="yes" xml:space="preserve">
           <source>Windows Hello authentication failed, you do not have permission to enter the Security Area</source>
