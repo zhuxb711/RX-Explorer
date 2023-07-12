@@ -26,7 +26,6 @@ namespace AuxiliaryTrustProcess.Class
     [JsonSerializable(typeof(RemoteClipboardRelatedData))]
     [JsonSerializable(typeof(BackendResponseBaseData))]
     [JsonSerializable(typeof(BackendResponseBaseData<RetrieveAADTokenContentResponseDto>))]
-    [JsonSerializable(typeof(BackendResponseBaseData<BackendSwitchStatusResponseContent>))]
     [JsonSerializable(typeof(BackendResponseBaseData<RedeemCodeContentResponseDto>))]
     [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
     internal partial class JsonSourceGenerationContext : JsonSerializerContext

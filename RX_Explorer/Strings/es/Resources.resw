@@ -3727,11 +3727,8 @@ Las denominaciones no válidas son:
   <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
     <value>Descargando el código de activación</value>
   </data>
-  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
-    <value>Excepción desconocida</value>
-  </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>Los usuarios que hayan comprado la versión oficial de UWP pueden canjear el código de activación de la versión de WinAppSdk aquí. Después de descargar el código de activación, puede ir a Microsoft Store para canjear y activar la nueva versión de RX-Explorer</value>
+    <value>Los usuarios que hayan comprado RX-Explorer (UWP) pueden canjear el código de activación de RX-Explorer (WAS) aquí. Puede activar la licencia de RX-Explorer (WAS) utilizando el código de activación que se proporciona a continuación en Microsoft Store o, alternativamente, siguiendo el enlace en su navegador.</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>Descargar</value>
@@ -3762,5 +3759,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>¿No puedes canjear tu código de activación? Haga clic para ponerse en contacto con el desarrollador</value>
+  </data>
+  <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
+    <value>No se puede canjear el código de activación</value>
   </data>
 </root>

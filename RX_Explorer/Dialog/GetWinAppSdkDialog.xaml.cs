@@ -26,10 +26,10 @@ namespace RX_Explorer.Dialog
         {
             await NoReentryExecution.ExecuteAsync(async () =>
             {
+                ActivateCodeTextBox.IsEnabled = false;
                 ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.Gray);
                 ActivateCodeTextBox.PlaceholderText = $"{Globalization.GetString("GetWinAppSdk_Downloading_ActivationCode")}...";
                 ActivateCodeTextBox.Text = string.Empty;
-                ActivateCodeTextBox.IsEnabled = false;
                 ActivateUrlTextBox.Text = string.Empty;
                 CodeValidDate.Text = string.Empty;
                 CodeValidDate.Visibility = Visibility.Collapsed;
@@ -60,14 +60,14 @@ namespace RX_Explorer.Dialog
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, "Failed to get the account name for current user");
+                        LogTracer.Log(ex, "Could not retrieve the account email for current user");
                     }
 
                     if (string.IsNullOrEmpty(AccountName))
                     {
+                        ContactDeveloper.Visibility = Visibility.Visible;
                         ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
                         ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Empty_AccountName");
-                        ContactDeveloper.Visibility = Visibility.Visible;
                     }
                     else
                     {
@@ -91,19 +91,12 @@ namespace RX_Explorer.Dialog
                         }
                         catch (Exception ex)
                         {
-                            ActivateCodeTextBox.PlaceholderText = ex.Message;
-                            ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
                             ContactDeveloper.Visibility = Visibility.Visible;
-                            LogTracer.Log(ex, $"Could not download the activation code, reason: {ex.Message}");
+                            ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
+                            ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Redeem_Error");
+                            LogTracer.Log(ex, $"Could not retrieve the activation code, reason: {ex.Message}");
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
-                    ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Unknown_Exception");
-                    ContactDeveloper.Visibility = Visibility.Visible;
-                    LogTracer.Log(ex, "Could not retrieve the activation code");
                 }
                 finally
                 {

@@ -1200,19 +1200,6 @@ namespace RX_Explorer.View
                 if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
-
-                    try
-                    {
-                        using (CancellationTokenSource Cancellation = new CancellationTokenSource(60000))
-                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
-                        {
-                            GetWinAppSdkButton.Visibility = await Exclusive.Controller.GetRedeemVisibilityStatusFromBackendAsync(Cancellation.Token);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Could not check the status about redeem visibility status, reason: {ex.Message}");
-                    }
                 }
                 else
                 {

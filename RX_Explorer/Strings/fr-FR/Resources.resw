@@ -3725,11 +3725,8 @@ Les noms non valides incluent
   <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
     <value>Télécharger le code d'activation</value>
   </data>
-  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
-    <value>Exception inconnue</value>
-  </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>Les utilisateurs qui ont acheté la version officielle d'UWP peuvent utiliser le code d'activation de la version WinAppSdk ici. Après avoir téléchargé le code d'activation, vous pouvez vous rendre sur le Microsoft Store pour utiliser et activer la nouvelle version de RX-Explorer</value>
+    <value>Les utilisateurs qui ont acheté RX-Explorer (UWP) peuvent échanger le code d'activation pour RX-Explorer (WAS) ici. Vous pouvez activer la licence de RX-Explorer (WAS) en utilisant le code d'activation fourni ci-dessous dans le Microsoft Store ou bien en suivant le lien dans votre navigateur</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>Télécharger</value>
@@ -3760,5 +3757,8 @@ Les noms non valides incluent
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>Vous ne parvenez pas à utiliser votre code d’activation ? Cliquez pour contacter le développeur</value>
+  </data>
+  <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
+    <value>Impossible d'utiliser le code d'activation</value>
   </data>
 </root>

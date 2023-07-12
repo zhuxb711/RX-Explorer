@@ -4951,13 +4951,9 @@ Invalid names include
           <source>Downloading activation code</source>
           <target state="translated">正在下载激活码</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Unknown_Exception" translate="yes" xml:space="preserve">
-          <source>Unknown exception</source>
-          <target state="translated">未知错误</target>
-        </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Description" translate="yes" xml:space="preserve">
-          <source>Users who have purchased the official version of UWP can redeem the activation code of the WinAppSdk version here. After downloading the activation code, you can go to the Microsoft Store to redeem and activate the new version of RX-Explorer</source>
-          <target state="translated">购买了UWP正式版的用户可以在这里兑换WinAppSdk版的激活码。下载激活码后，可到微软商店兑换激活新版RX文件管理器</target>
+          <source>Users who have purchased RX-Explorer(UWP) can redeem the activation code for RX-Explorer(WAS) here. You can activate the license of RX-Explorer(WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</source>
+          <target state="translated">已购买了 RX-Explorer(UWP) 的用户可以在这里兑换 RX-Explorer(WAS) 的激活码。 您可以在Microsoft Store中使用下方提供的激活码或通过浏览器访问链接来授予您 RX-Explorer(WAS) 的许可证</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Download_Button" translate="yes" xml:space="preserve">
           <source>Download</source>
@@ -4998,6 +4994,10 @@ Invalid names include
         <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
           <source>Can't redeem your activation code? Click to contact developer</source>
           <target state="translated">无法兑换激活码? 点击联系开发者</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Redeem_Error" translate="yes" xml:space="preserve">
+          <source>Unable to redeem activation code</source>
+          <target state="translated">无法兑换激活码</target>
         </trans-unit>
       </group>
     </body>

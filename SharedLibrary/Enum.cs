@@ -169,7 +169,6 @@
         SetWallpaperImage,
         GetAvailableNetworkPort,
         RetrieveAADTokenFromBackend,
-        RedeemCodeFromBackend,
-        RedeemVisibilityStatusFromBackend
+        RedeemCodeFromBackend
     }
 }

@@ -3727,11 +3727,8 @@ Inkorrekte Namen sind
   <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
     <value>Aktivierungscode herunterladen</value>
   </data>
-  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
-    <value>Unbekannte Ausnahme</value>
-  </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>Benutzer, die die offizielle Version von UWP erworben haben, können den Aktivierungscode der WinAppSdk-Version hier einlösen. Nach dem Herunterladen des Aktivierungscodes können Sie zum Microsoft Store gehen, um die neue Version von RX-Explorer einzulösen und zu aktivieren</value>
+    <value>Benutzer, die RX-Explorer (UWP) gekauft haben, können den Aktivierungscode für RX-Explorer (WAS) hier einlösen. Sie können die Lizenz von RX-Explorer (WAS) aktivieren, indem Sie den unten angegebenen Aktivierungscode im Microsoft Store verwenden oder alternativ dem Link in Ihrem Browser folgen</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>Herunterladen</value>
@@ -3762,5 +3759,8 @@ Inkorrekte Namen sind
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>Sie können Ihren Aktivierungscode nicht einlösen? Klicken Sie hier, um den Entwickler zu kontaktieren</value>
+  </data>
+  <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
+    <value>Aktivierungscode kann nicht eingelöst werden</value>
   </data>
 </root>

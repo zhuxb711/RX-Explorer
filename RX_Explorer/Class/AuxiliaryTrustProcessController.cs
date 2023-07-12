@@ -519,31 +519,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<Visibility> GetRedeemVisibilityStatusFromBackendAsync(CancellationToken CancelToken = default)
-        {
-            using (CancelToken.Register(() =>
-            {
-                if (!TryCancelCurrentOperation())
-                {
-                    LogTracer.Log($"Could not cancel the operation in {nameof(GetRedeemCodeFromBackendAsync)}");
-                }
-            }))
-            {
-                IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RedeemVisibilityStatusFromBackend);
-
-                if (Response.TryGetValue("Success", out string RawText))
-                {
-                    return Convert.ToBoolean(RawText) ? Visibility.Visible : Visibility.Collapsed;
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage))
-                {
-                    throw new Exception(ErrorMessage);
-                }
-
-                throw new Exception("Could not check the redeem visiblity from backend");
-            }
-        }
-
         public async Task<string> GetAADTokenFromBackendAsync(CancellationToken CancelToken = default)
         {
             using (CancelToken.Register(() =>

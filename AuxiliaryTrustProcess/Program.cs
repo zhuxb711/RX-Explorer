@@ -869,11 +869,6 @@ namespace AuxiliaryTrustProcess
                                 Value.Add("Success", JsonSerializer.Serialize(BackendUtil.SendAndGetResponseAsync<RedeemCodeContentResponseDto>(new Uri($"https://52.230.36.100:3304/validation/redeemCode?customerCollectionId={Uri.EscapeDataString(CommandValue["CustomerCollectionId"])}"), HttpMethod.Get, CancelToken: Cancellation.Token).Result, JsonSourceGenerationContext.Default.RedeemCodeContentResponseDto));
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.RedeemVisibilityStatusFromBackend:
-                            {
-                                Value.Add("Success", Convert.ToString(BackendUtil.SendAndGetResponseAsync<BackendSwitchStatusResponseContent>(new Uri("https://52.230.36.100:3304/switch/retrieveSwitch?switchName=redeemVisibility"), HttpMethod.Get, CancelToken: Cancellation.Token).Result.SwitchStatus));
-                                break;
-                            }
                         case AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort:
                             {
                                 int Retry = 0;

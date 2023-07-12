@@ -3016,44 +3016,6 @@
                                             Margin="0,5,0,0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            BorderThickness="1"
-                                            Name="GetWinAppSdkButton"
-                                            Visibility="Collapsed"
-                                            Click="GetWinAppSdk_Click"
-                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
-                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                        <RelativePanel>
-                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                        RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="GetWinAppSdkIcon">
-                                                <TextBlock Text="获取Windows App Sdk版本激活码"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           x:Uid="GetWinAppSdkTitle"/>
-                                                <TextBlock Foreground="Gray"
-                                                           FontSize="12"
-                                                           Text="已购买UWP版本的用户可以点击此处获取基于WinUI3和WinAppSdk重构的新版本激活码"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords"
-                                                           x:Uid="GetWinAppSdkDescription"/>
-                                            </StackPanel>
-                                            <Viewbox Height="20"
-                                                     Width="20"
-                                                     Name="GetWinAppSdkIcon"
-                                                     RelativePanel.AlignRightWithPanel="True"
-                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                          Foreground="{ThemeResource SystemAccentColor}"
-                                                          Glyph="&#xEFDA;" />
-                                            </Viewbox>
-                                        </RelativePanel>
-                                    </Button>
-
-                                    <Button Padding="20,10"
-                                            MinHeight="60"
-                                            Margin="0,5,0,0"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch"
                                             Click="ShowUpdateLog_Click"
                                             BorderThickness="1"
                                             BorderBrush="{ThemeResource BorderDefaultBrush}"
@@ -3212,6 +3174,44 @@
                                             </StackPanel>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            BorderThickness="1"
+                                            Name="GetWinAppSdkButton"
+                                            Click="GetWinAppSdk_Click"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="GetWinAppSdkIcon">
+                                                <TextBlock Text="获取Windows App Sdk版本激活码"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="GetWinAppSdkTitle" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           Text="已购买UWP版本的用户可以点击此处获取基于WinUI3和WinAppSdk重构的新版本激活码"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords"
+                                                           x:Uid="GetWinAppSdkDescription" />
+                                            </StackPanel>
+                                            <Viewbox Height="20"
+                                                     Width="20"
+                                                     Name="GetWinAppSdkIcon"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xEFDA;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
                                 </StackPanel>
                             </ScrollViewer>
                         </control:Case>

@@ -4951,13 +4951,9 @@ Inkorrekte Namen sind
           <source>Downloading activation code</source>
           <target state="translated">Aktivierungscode herunterladen</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Unknown_Exception" translate="yes" xml:space="preserve">
-          <source>Unknown exception</source>
-          <target state="translated">Unbekannte Ausnahme</target>
-        </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Description" translate="yes" xml:space="preserve">
-          <source>Users who have purchased the official version of UWP can redeem the activation code of the WinAppSdk version here. After downloading the activation code, you can go to the Microsoft Store to redeem and activate the new version of RX-Explorer</source>
-          <target state="translated">Benutzer, die die offizielle Version von UWP erworben haben, können den Aktivierungscode der WinAppSdk-Version hier einlösen. Nach dem Herunterladen des Aktivierungscodes können Sie zum Microsoft Store gehen, um die neue Version von RX-Explorer einzulösen und zu aktivieren</target>
+          <source>Users who have purchased RX-Explorer(UWP) can redeem the activation code for RX-Explorer(WAS) here. You can activate the license of RX-Explorer(WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</source>
+          <target state="translated">Benutzer, die RX-Explorer (UWP) gekauft haben, können den Aktivierungscode für RX-Explorer (WAS) hier einlösen. Sie können die Lizenz von RX-Explorer (WAS) aktivieren, indem Sie den unten angegebenen Aktivierungscode im Microsoft Store verwenden oder alternativ dem Link in Ihrem Browser folgen</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Download_Button" translate="yes" xml:space="preserve">
           <source>Download</source>
@@ -4998,6 +4994,10 @@ Inkorrekte Namen sind
         <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
           <source>Can't redeem your activation code? Click to contact developer</source>
           <target state="translated">Sie können Ihren Aktivierungscode nicht einlösen? Klicken Sie hier, um den Entwickler zu kontaktieren</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Redeem_Error" translate="yes" xml:space="preserve">
+          <source>Unable to redeem activation code</source>
+          <target state="translated">Aktivierungscode kann nicht eingelöst werden</target>
         </trans-unit>
       </group>
     </body>

@@ -4951,13 +4951,9 @@ Invalid names include
           <source>Downloading activation code</source>
           <target state="translated">正在下載激活碼</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Unknown_Exception" translate="yes" xml:space="preserve">
-          <source>Unknown exception</source>
-          <target state="translated">未知異常</target>
-        </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Description" translate="yes" xml:space="preserve">
-          <source>Users who have purchased the official version of UWP can redeem the activation code of the WinAppSdk version here. After downloading the activation code, you can go to the Microsoft Store to redeem and activate the new version of RX-Explorer</source>
-          <target state="translated">購買了UWP正式版的用戶可以在這裡兌換WinAppSdk版的激活碼。 下載激活碼後，可到微軟商店兌換激活新版RX-Explorer</target>
+          <source>Users who have purchased RX-Explorer(UWP) can redeem the activation code for RX-Explorer(WAS) here. You can activate the license of RX-Explorer(WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</source>
+          <target state="translated">已購買 RX-Explorer(UWP) 的用戶可以在這裡兌換 RX-Explorer(WAS) 的激活碼。 您可以在 Microsoft Store 中使用下面提供的激活碼或通過瀏覽器中的鏈接來激活 RX-Explorer(WAS) 的許可證</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Download_Button" translate="yes" xml:space="preserve">
           <source>Download</source>
@@ -4998,6 +4994,10 @@ Invalid names include
         <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
           <source>Can't redeem your activation code? Click to contact developer</source>
           <target state="translated">無法兌換啟動碼？點擊聯繫開發者</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Redeem_Error" translate="yes" xml:space="preserve">
+          <source>Unable to redeem activation code</source>
+          <target state="translated">無法兌換激活碼</target>
         </trans-unit>
       </group>
     </body>

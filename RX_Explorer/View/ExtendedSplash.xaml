@@ -20,8 +20,7 @@
 
         <Canvas Grid.RowSpan="2">
             <Image x:Name="Logo"
-                   Source="ms-appx:///Assets/SplashScreen.png" />
-            
+                   Source="ms-appx:///Assets/SplashScreen.png"/>
             <StackPanel x:Name="PermissionArea"
                         Visibility="Collapsed"
                         Width="400">
