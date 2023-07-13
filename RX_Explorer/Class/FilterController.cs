@@ -735,7 +735,7 @@ namespace RX_Explorer.Class
 
                     if (NameCondition.HasFlag(NameFilterCondition.From_U_To_Z))
                     {
-                        NameFilterResult.AddRange(OriginCopy.Where((Item) => (Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 112)));
+                        NameFilterResult.AddRange(OriginCopy.Where((Item) => (Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 122)));
                     }
 
                     if (NameCondition.HasFlag(NameFilterCondition.Other))

@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
                         {
                             return "O - T";
                         }
-                        else if ((Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 112))
+                        else if ((Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 122))
                         {
                             return "U - Z";
                         }
@@ -165,7 +165,7 @@ namespace RX_Explorer.Class
 
                         Result.Add(new FileSystemStorageGroupItem("O - T", InputCollection.Where((Item) => (Item.Name.FirstOrDefault() >= 79 && Item.Name.FirstOrDefault() <= 84) || (Item.Name.FirstOrDefault() >= 111 && Item.Name.FirstOrDefault() <= 116))));
 
-                        Result.Add(new FileSystemStorageGroupItem("U - Z", InputCollection.Where((Item) => (Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 112))));
+                        Result.Add(new FileSystemStorageGroupItem("U - Z", InputCollection.Where((Item) => (Item.Name.FirstOrDefault() >= 85 && Item.Name.FirstOrDefault() <= 90) || (Item.Name.FirstOrDefault() >= 117 && Item.Name.FirstOrDefault() <= 122))));
 
                         Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Others"), InputCollection.Where((Item) => Item.Name.FirstOrDefault() < 65 || (Item.Name.FirstOrDefault() > 90 && Item.Name.FirstOrDefault() < 97) || Item.Name.FirstOrDefault() > 122)));
 
