@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using OpenCvSharp;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using SharedLibrary;
@@ -17,10 +18,11 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Rect = Windows.Foundation.Rect;
 
 namespace RX_Explorer.View
 {
-    public sealed partial class ImageEditor : Page
+    public sealed partial class PhotoEditor : Page
     {
         private SoftwareBitmap OriginBitmap;
         private SoftwareBitmap OriginBitmapBackup;
@@ -30,7 +32,7 @@ namespace RX_Explorer.View
         private Rect UnchangedRegion;
         private readonly ObservableCollection<ImageFilterItem> FilterCollection = new ObservableCollection<ImageFilterItem>();
 
-        public ImageEditor()
+        public PhotoEditor()
         {
             InitializeComponent();
 
@@ -211,10 +213,7 @@ namespace RX_Explorer.View
 
             OriginBitmap?.Dispose();
             OriginBitmap = SoftwareBitmap.Copy(OriginBitmapBackup);
-
-            WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
-            OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-            Cropper.Source = WBitmap;
+            Cropper.Source = OriginBitmap.ToWriteableBitmap();
 
             FilterBitmap?.Dispose();
             FilterBitmap = null;
@@ -324,24 +323,20 @@ namespace RX_Explorer.View
         {
             if (FilterBitmap == null)
             {
-                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(OriginBitmap, 90);
-                WriteableBitmap WBitmap = new WriteableBitmap(RotatedImage.PixelWidth, RotatedImage.PixelHeight);
-                RotatedImage.CopyToBuffer(WBitmap.PixelBuffer);
-                Cropper.Source = WBitmap;
+                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(OriginBitmap, RotateFlags.Rotate90Clockwise);
+                Cropper.Source = RotatedImage.ToWriteableBitmap();
 
                 OriginBitmap?.Dispose();
                 OriginBitmap = RotatedImage;
             }
             else
             {
-                SoftwareBitmap OringinRotatedImage = ComputerVisionProvider.RotateEffect(OriginBitmap, 90);
+                SoftwareBitmap OringinRotatedImage = ComputerVisionProvider.RotateEffect(OriginBitmap, RotateFlags.Rotate90Clockwise);
                 OriginBitmap?.Dispose();
                 OriginBitmap = OringinRotatedImage;
 
-                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(FilterBitmap, 90);
-                WriteableBitmap WBitmap = new WriteableBitmap(RotatedImage.PixelWidth, RotatedImage.PixelHeight);
-                RotatedImage.CopyToBuffer(WBitmap.PixelBuffer);
-                Cropper.Source = WBitmap;
+                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(FilterBitmap, RotateFlags.Rotate90Clockwise);
+                Cropper.Source = RotatedImage.ToWriteableBitmap();
 
                 FilterBitmap.Dispose();
                 FilterBitmap = RotatedImage;
@@ -354,27 +349,21 @@ namespace RX_Explorer.View
         {
             if (FilterBitmap == null)
             {
-                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginBitmap, false);
+                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginBitmap, FlipMode.Y);
                 OriginBitmap?.Dispose();
                 OriginBitmap = FlipImage;
-
-                WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
-                OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                Cropper.Source = WBitmap;
+                Cropper.Source = OriginBitmap.ToWriteableBitmap();
             }
             else
             {
-                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginBitmap, false);
+                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginBitmap, FlipMode.Y);
                 OriginBitmap?.Dispose();
                 OriginBitmap = FlipImage;
 
-                SoftwareBitmap FilterFlipImage = ComputerVisionProvider.FlipEffect(FilterBitmap, false);
+                SoftwareBitmap FilterFlipImage = ComputerVisionProvider.FlipEffect(FilterBitmap, FlipMode.Y);
                 FilterBitmap.Dispose();
                 FilterBitmap = FilterFlipImage;
-
-                WriteableBitmap WBitmap = new WriteableBitmap(FilterBitmap.PixelWidth, FilterBitmap.PixelHeight);
-                FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                Cropper.Source = WBitmap;
+                Cropper.Source = FilterBitmap.ToWriteableBitmap();
             }
 
             ResetButton.IsEnabled = true;
@@ -389,18 +378,13 @@ namespace RX_Explorer.View
                 {
                     OriginBitmap?.Dispose();
                     OriginBitmap = ComputerVisionProvider.AdjustBrightnessContrast(OriginBitmapBackup, e.NewValue, BetaSlider.Value);
-
-                    WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
-                    OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
+                    Cropper.Source = OriginBitmap.ToWriteableBitmap();
                 }
                 else
                 {
                     FilterBitmap.Dispose();
                     FilterBitmap = ComputerVisionProvider.AdjustBrightnessContrast(FilterBitmapBackup, e.NewValue, BetaSlider.Value);
-
-                    WriteableBitmap WBitmap = new WriteableBitmap(FilterBitmap.PixelWidth, FilterBitmap.PixelHeight);
-                    FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                    Cropper.Source = WBitmap;
+                    Cropper.Source = FilterBitmap.ToWriteableBitmap();
                 }
             }
         }
@@ -414,19 +398,13 @@ namespace RX_Explorer.View
                 {
                     OriginBitmap?.Dispose();
                     OriginBitmap = ComputerVisionProvider.AdjustBrightnessContrast(OriginBitmapBackup, AlphaSlider.Value, e.NewValue);
-
-                    WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
-                    OriginBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                    Cropper.Source = WBitmap;
+                    Cropper.Source = OriginBitmap.ToWriteableBitmap();
                 }
                 else
                 {
                     FilterBitmap.Dispose();
                     FilterBitmap = ComputerVisionProvider.AdjustBrightnessContrast(FilterBitmapBackup, AlphaSlider.Value, e.NewValue);
-
-                    WriteableBitmap WBitmap = new WriteableBitmap(FilterBitmap.PixelWidth, FilterBitmap.PixelHeight);
-                    FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-                    Cropper.Source = WBitmap;
+                    Cropper.Source = FilterBitmap.ToWriteableBitmap();
                 }
             }
         }
@@ -449,11 +427,8 @@ namespace RX_Explorer.View
             BetaSlider.ValueChanged += BetaSlider_ValueChanged;
 
             FilterBitmap = ComputerVisionProvider.AutoColorEnhancement(OriginBitmap);
-
             FilterBitmapBackup = SoftwareBitmap.Copy(FilterBitmap);
-            WriteableBitmap WBitmap = new WriteableBitmap(OriginBitmap.PixelWidth, OriginBitmap.PixelHeight);
-            FilterBitmap.CopyToBuffer(WBitmap.PixelBuffer);
-            Cropper.Source = WBitmap;
+            Cropper.Source = FilterBitmap.ToWriteableBitmap();
 
             ResetButton.IsEnabled = true;
         }

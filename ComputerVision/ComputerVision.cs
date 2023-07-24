@@ -56,54 +56,39 @@ namespace ComputerVision
             }
         }
 
-        public static SoftwareBitmap RotateEffect(SoftwareBitmap Input, int Angle)
+        public static SoftwareBitmap RotateEffect(SoftwareBitmap Input, RotateFlags Flags)
         {
             using (Mat InputMat = Input.SoftwareBitmapToMat())
-            using (Mat OutputMat = CreateEmptyOutputBitmap(Input.PixelWidth, Input.PixelHeight, out SoftwareBitmap Output))
             {
-                switch (Angle)
+                switch (Flags)
                 {
-                    case 90:
+                    case RotateFlags.Rotate90Clockwise:
+                    case RotateFlags.Rotate90Counterclockwise:
                         {
-                            Cv2.Transpose(InputMat, OutputMat);
-                            Cv2.Flip(OutputMat, OutputMat, FlipMode.Y);
-                            break;
-                        }
-                    case 180:
-                        {
-                            Cv2.Flip(InputMat, OutputMat, FlipMode.XY);
-                            break;
-                        }
-                    case -90:
-                        {
-                            Cv2.Transpose(InputMat, OutputMat);
-                            Cv2.Flip(OutputMat, OutputMat, FlipMode.X);
-                            break;
+                            using (Mat OutputMat = CreateEmptyOutputBitmap(Input.PixelHeight, Input.PixelWidth, out SoftwareBitmap Output))
+                            {
+                                Cv2.Rotate(InputMat, OutputMat, RotateFlags.Rotate90Clockwise);
+                                return Output;
+                            }
                         }
                     default:
                         {
-                            throw new ArgumentOutOfRangeException(nameof(Angle), "Must be one of those values: 90, 180, -90");
+                            using (Mat OutputMat = CreateEmptyOutputBitmap(Input.PixelWidth, Input.PixelHeight, out SoftwareBitmap Output))
+                            {
+                                Cv2.Rotate(InputMat, OutputMat, RotateFlags.Rotate90Clockwise);
+                                return Output;
+                            }
                         }
                 }
-
-                return Output;
             }
         }
 
-        public static SoftwareBitmap FlipEffect(SoftwareBitmap Input, bool FlipByX)
+        public static SoftwareBitmap FlipEffect(SoftwareBitmap Input, FlipMode Mode)
         {
             using (Mat InputMat = Input.SoftwareBitmapToMat())
             using (Mat OutputMat = CreateEmptyOutputBitmap(Input.PixelWidth, Input.PixelHeight, out SoftwareBitmap Output))
             {
-                if (FlipByX)
-                {
-                    Cv2.Flip(InputMat, OutputMat, FlipMode.X);
-                }
-                else
-                {
-                    Cv2.Flip(InputMat, OutputMat, FlipMode.Y);
-                }
-
+                Cv2.Flip(InputMat, OutputMat, Mode);
                 return Output;
             }
         }

@@ -387,17 +387,17 @@ namespace RX_Explorer.View
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(ImageEditor), Item, new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(PhotoEditor), Item, new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(ImageEditor), Item, new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(PhotoEditor), Item, new SuppressNavigationTransitionInfo());
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An exception was threw when navigating to {nameof(ImageEditor)}");
+                LogTracer.Log(ex, $"An exception was threw when navigating to {nameof(PhotoEditor)}");
             }
         }
 
