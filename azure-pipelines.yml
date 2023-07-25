@@ -64,7 +64,7 @@ jobs:
             }
 
             if ($CurrentSDKVersion -ne '') {
-              if($CurrentSDKVersion -lt ($TargetWindowsSDKVersion)) {
+              if($CurrentSDKVersion -lt $(TargetWindowsSDKVersion)) {
                 New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
 
                 Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
@@ -168,7 +168,7 @@ jobs:
             }
 
             if ($CurrentSDKVersion -ne '') {
-              if($CurrentSDKVersion -lt ($TargetWindowsSDKVersion)) {
+              if($CurrentSDKVersion -lt $(TargetWindowsSDKVersion)) {
                 New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
 
                 Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
