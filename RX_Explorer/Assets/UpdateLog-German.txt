@@ -1,15 +1,15 @@
-﻿###Was ist neu in Ver.8.3.4
+﻿### Was ist neu in Ver.8.3.5
 
 ##### ⚠Achtung: Uwp ist veraltet, RX-Explorer wurde auf Windows App Sdk migriert
 
 >#### Windows App Sdk ist ein alternatives Framework für Uwp. Die neue Version wurde am 1. Mai veröffentlicht ([Klicken Sie hier zum Herunterladen](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3)), Benutzer, die die Uwp One gekauft haben, können sie unter „Einstellungen – Version“ abrufen den Aktivierungscode
 
-##### Allgemeine Verbesserungen
+##### Fehlerbehebungen
 
->##### Unnötige CA-Zertifikate entfernt
+>##### Behebt ein Problem, bei dem Dateinamen von U-Z nicht korrekt gefiltert werden
 
->##### Die Farbstufenanalyse wurde aus dem integrierten Bildeditor entfernt
+>##### Behebt ein Problem, bei dem der Bildkontrast im integrierten Bildeditor nicht angepasst werden konnte
 
->##### Der Mechanismus der WLAN-Freigabe wurde verbessert
+>##### Behebt ein Problem, bei dem das Bild im integrierten Bildbetrachter nicht gedreht werden konnte
 
->##### Einige Abhängigkeiten auf die neueste Version aktualisieren
+>##### Behebt ein Problem, bei dem Bilder im integrierten Bildbetrachter nicht automatisch optimiert werden konnten

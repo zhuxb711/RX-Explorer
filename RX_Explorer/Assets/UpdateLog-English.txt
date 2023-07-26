@@ -1,15 +1,15 @@
-﻿###What's new in Ver.8.3.4
+﻿### What's new in Ver.8.3.5
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
 >##### Windows App Sdk is an alternative framework for Uwp. The new version was released on May 1 ([Click here to download](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3)), users who have purchased the Uwp one can go to "Settings - Version" to get the activation code
 
-##### General improvements
+##### Bug fixes
 
->##### Removed unnecessary CA certificates
+>##### Addresses an issue where file names are not filtered correctly by U-Z
 
->##### Removed color level analysis from the built-in image editor
+>##### Addresses an issue where image contrast could not be adjusted in the built-in image editor
 
->##### Improved the mechanism of WiFi sharing
+>##### Addresses an issue where image could not be rotated in the built-in image viewer
 
->##### Update some dependencies to the latest version
+>##### Addresses an issue where images could not be automatically optimized in the built-in image viewer
