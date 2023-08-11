@@ -3,6 +3,7 @@ using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
@@ -46,16 +47,26 @@ namespace RX_Explorer.Dialog
                     {
                         IReadOnlyList<User> CurrentUsers = await User.FindAllAsync();
 
-                        foreach (User CurrentUser in CurrentUsers.Append(User.GetDefault())
-                                                                 .Append(StoreContext.GetDefault().User)
-                                                                 .Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated))
+                        foreach (User CurrentUser in CurrentUsers.Append(StoreContext.GetDefault().User)
+                                                                 .Append(User.GetDefault())
+                                                                 .OfType<User>()
+                                                                 .Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated)
+                                                                 .GroupBy((User) => User.NonRoamableId)
+                                                                 .Select((Group) => Group.First()))
                         {
                             AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName));
 
-                            if (!string.IsNullOrEmpty(AccountName))
+                            if (!Helper.IsEmail(AccountName))
                             {
-                                break;
+                                AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.DomainName)).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+                                if (!Helper.IsEmail(AccountName))
+                                {
+                                    continue;
+                                }
                             }
+
+                            break;
                         }
                     }
                     catch (Exception ex)
@@ -63,13 +74,7 @@ namespace RX_Explorer.Dialog
                         LogTracer.Log(ex, "Could not retrieve the account email for current user");
                     }
 
-                    if (string.IsNullOrEmpty(AccountName))
-                    {
-                        ContactDeveloper.Visibility = Visibility.Visible;
-                        ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
-                        ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Empty_AccountName");
-                    }
-                    else
+                    if (Helper.IsEmail(AccountName))
                     {
                         try
                         {
@@ -96,6 +101,12 @@ namespace RX_Explorer.Dialog
                             ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Redeem_Error");
                             LogTracer.Log(ex, $"Could not retrieve the activation code, reason: {ex.Message}");
                         }
+                    }
+                    else
+                    {
+                        ContactDeveloper.Visibility = Visibility.Visible;
+                        ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
+                        ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Empty_AccountName");
                     }
                 }
                 finally

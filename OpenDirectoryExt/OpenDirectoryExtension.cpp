@@ -108,7 +108,7 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray, BOOL /*fOkToBe
 STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszIcon)
 {
     winrt::hstring BasePath = winrt::Windows::ApplicationModel::Package::Current().InstalledPath();
-    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\StoreLogo.scale-125.png";
+    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\AppLogo.png";
     return SHStrDupW(LogoPath.c_str(), ppszIcon);
 }
 

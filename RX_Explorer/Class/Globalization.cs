@@ -8,14 +8,8 @@ using Windows.System.UserProfile;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 指示UI语言类型
-    /// </summary>
     public static class Globalization
     {
-        /// <summary>
-        /// 当前使用的语言
-        /// </summary>
         public static LanguageEnum CurrentLanguage { get; private set; }
 
         private static readonly ResourceLoader Loader;
@@ -28,7 +22,7 @@ namespace RX_Explorer.Class
                 case LanguageEnum.Chinese_Simplified:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器(UWP)打开";
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打开";
                         break;
                     }
                 case LanguageEnum.English:
@@ -46,7 +40,7 @@ namespace RX_Explorer.Class
                 case LanguageEnum.Chinese_Traditional:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器(UWP)打開";
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打開";
                         break;
                     }
                 case LanguageEnum.Spanish:
@@ -89,9 +83,9 @@ namespace RX_Explorer.Class
             };
         }
 
-        public static string GetString(string Key)
+        public static string GetString(string ResourceKey)
         {
-            if (ResourceCache.TryGetValue(Key, out string ExistingValue))
+            if (ResourceCache.TryGetValue(ResourceKey, out string ExistingValue))
             {
                 return ExistingValue;
             }
@@ -99,7 +93,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    string TranslatedValue = Loader.GetString(Key).Replace(@"\r", Environment.NewLine);
+                    string TranslatedValue = Loader.GetString(ResourceKey).Replace(@"\r", Environment.NewLine);
 
                     if (string.IsNullOrEmpty(TranslatedValue))
                     {
@@ -107,7 +101,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        ResourceCache.TryAdd(Key, TranslatedValue);
+                        ResourceCache.TryAdd(ResourceKey, TranslatedValue);
                     }
 
                     return TranslatedValue;
@@ -127,7 +121,7 @@ namespace RX_Explorer.Class
                     }
 #endif
 
-                    return string.Empty;
+                    return ResourceKey;
                 }
             }
         }
@@ -181,14 +175,14 @@ namespace RX_Explorer.Class
                         CurrentLanguage = LanguageEnum.Chinese_Traditional;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器(UWP)打開";
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打開";
                     }
                     else if (PrimaryLanguage.Contains("Hans", StringComparison.OrdinalIgnoreCase))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Simplified;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器(UWP)打开";
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打开";
                     }
                     else
                     {
