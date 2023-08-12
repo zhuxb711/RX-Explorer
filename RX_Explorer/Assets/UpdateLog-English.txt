@@ -1,4 +1,4 @@
-﻿### What's new in Ver.8.3.5
+﻿### What's new in Ver.8.3.6
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
@@ -6,10 +6,6 @@
 
 ##### Bug fixes
 
->##### Addresses an issue where file names are not filtered correctly by U-Z
+>##### Updated some implementation details for the "Redeem Activation Code"
 
->##### Addresses an issue where image contrast could not be adjusted in the built-in image editor
-
->##### Addresses an issue where image could not be rotated in the built-in image viewer
-
->##### Addresses an issue where images could not be automatically optimized in the built-in image viewer
+>##### Other minor improvements and dependency updates

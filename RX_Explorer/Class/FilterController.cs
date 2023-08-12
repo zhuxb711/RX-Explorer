@@ -589,32 +589,38 @@ namespace RX_Explorer.Class
 
         private void ResetAllFilters()
         {
-            NameFilterCheckBox1 = false;
-            NameFilterCheckBox2 = false;
-            NameFilterCheckBox3 = false;
-            NameFilterCheckBox4 = false;
-            NameFilterCheckBox5 = false;
-            NameFilterCheckBox6 = false;
-            RegexExpression = string.Empty;
+            if (AnyConditionApplied)
+            {
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox1 = false;
+                    NameFilterCheckBox2 = false;
+                    NameFilterCheckBox3 = false;
+                    NameFilterCheckBox4 = false;
+                    NameFilterCheckBox5 = false;
+                    NameFilterCheckBox6 = false;
+                    RegexExpression = string.Empty;
 
-            ModTimeFilterCheckBox1 = false;
-            ModTimeFilterCheckBox2 = false;
-            ModTimeFilterCheckBox3 = false;
-            ModTimeFilterCheckBox4 = false;
+                    ModTimeFilterCheckBox1 = false;
+                    ModTimeFilterCheckBox2 = false;
+                    ModTimeFilterCheckBox3 = false;
+                    ModTimeFilterCheckBox4 = false;
 
-            SizeFilterCheckBox1 = false;
-            SizeFilterCheckBox2 = false;
-            SizeFilterCheckBox3 = false;
-            SizeFilterCheckBox4 = false;
+                    SizeFilterCheckBox1 = false;
+                    SizeFilterCheckBox2 = false;
+                    SizeFilterCheckBox3 = false;
+                    SizeFilterCheckBox4 = false;
 
-            TypeFilter.Clear();
-            NameCondition = NameFilterCondition.None;
-            ModTimeCondition = ModTimeFilterCondition.None;
-            SizeCondition = SizeFilterCondition.None;
-            FromDate = default;
-            ToDate = default;
+                    TypeFilter.Clear();
+                    NameCondition = NameFilterCondition.None;
+                    ModTimeCondition = ModTimeFilterCondition.None;
+                    SizeCondition = SizeFilterCondition.None;
+                    FromDate = default;
+                    ToDate = default;
 
-            OnPropertyChanged(nameof(TypeCheckBoxPanel));
+                    OnPropertyChanged(nameof(TypeCheckBoxPanel));
+                }
+            }
         }
 
         private void AddColorCondition(ColorFilterCondition Condition)

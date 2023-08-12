@@ -2736,7 +2736,7 @@ namespace AuxiliaryTrustProcess
 
                                                 if (string.IsNullOrEmpty(PackageFamilyName))
                                                 {
-                                                    throw new Exception("TargetPath is invalid");
+                                                    throw new Exception($"Link file \"{ExecutePath}\" without TargetPath but also not reference to a uwp application");
                                                 }
                                                 else
                                                 {
@@ -4914,8 +4914,8 @@ namespace AuxiliaryTrustProcess
                 catch (Exception ex)
                 {
                     Value.Clear();
-                    Value.Add("Error", $"An unexpected exception was threw, type: {ex.GetType().FullName}, message: {ex.Message}");
-                    LogTracer.Log(ex, $"An unexpected exception was threw, type: {ex.GetType().FullName}, message: {ex.Message}");
+                    Value.Add("Error", $"An exception was threw during command processing, exception message: {ex.Message}");
+                    LogTracer.Log(ex, $"An exception was threw during command processing, exception message: {ex.Message}");
                 }
             }
 
