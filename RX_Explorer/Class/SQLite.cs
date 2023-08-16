@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
             {
                 DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
                 Mode = SqliteOpenMode.ReadWriteCreate,
-                Cache = SqliteCacheMode.Default
+                Cache = SqliteCacheMode.Private
             };
 
             Connection = new SqliteConnection(Builder.ToString());

@@ -1,4 +1,4 @@
-﻿### What's new in Ver.8.3.6
+﻿### What's new in Ver.8.3.7
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
@@ -6,6 +6,6 @@
 
 ##### Bug fixes
 
->##### Updated some implementation details for the "Redeem Activation Code"
+>##### Fixed an issue that user could not redeeme activation codes
 
->##### Other minor improvements and dependency updates
+>##### Fixed some other minor issues

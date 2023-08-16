@@ -36,7 +36,9 @@
 		<Content Include="Everything64.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer" />
+		<Content Include="Ssl\RX-Explorer Certificate Authority Root.cer">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Ssl\RX-Explorer Client Certificate.pfx">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

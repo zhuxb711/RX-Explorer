@@ -39,7 +39,7 @@ namespace MaintenanceTask
             {
                 // No need to handle this exception
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -51,8 +51,6 @@ namespace MaintenanceTask
                     Debugger.Launch();
                 }
 #endif
-
-                Debug.WriteLine($"An exception threw in {nameof(MaintenanceTask.Run)}, message: {ex.Message}");
             }
             finally
             {
@@ -160,133 +158,132 @@ namespace MaintenanceTask
             }
         }
 
-        private SqliteConnection GetSQLConnection()
+        private async Task UpdateSQLiteAsync(CancellationToken CancelToken = default)
         {
-            SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
+            if (await ApplicationData.Current.LocalFolder.TryGetItemAsync("RX_Sqlite.db").AsTask().AsCancellable(CancelToken) is StorageFile DBFile)
             {
-                DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
-                Mode = SqliteOpenMode.ReadWrite,
-                Cache = SqliteCacheMode.Default
-            };
-
-            SqliteConnection Connection = new SqliteConnection(Builder.ToString());
-
-            Connection.Open();
-
-            return Connection;
-        }
-
-        private Task UpdateSQLiteAsync(CancellationToken CancelToken = default)
-        {
-            return Task.Run(() =>
-            {
-                using SqliteConnection Connection = GetSQLConnection();
-                using SqliteTransaction Transaction = Connection.BeginTransaction();
-
-                StringBuilder Builder = new StringBuilder("Delete From ProgramPicker Where FileType = '.*';");
-
-                using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileColor\"", Connection, Transaction))
+                await Task.Run(() =>
                 {
-                    if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                    SqliteConnectionStringBuilder ConnectionBuilder = new SqliteConnectionStringBuilder
                     {
-                        Builder.Append("Insert Or Ignore Into FileTag (Path, ColorTag) Select Path, Color From FileColor;")
-                               .Append("Update FileTag Set ColorTag = 'Blue' Where ColorTag = '#FF42C5FF';")
-                               .Append("Update FileTag Set ColorTag = 'Green' Where ColorTag = '#FF22B324';")
-                               .Append("Update FileTag Set ColorTag = 'Orange' Where ColorTag = '#FFFFA500';")
-                               .Append("Update FileTag Set ColorTag = 'Purple' Where ColorTag = '#FFCC6EFF';")
-                               .Append("Drop Table FileColor;");
-                    }
-                }
+                        DataSource = DBFile.Path,
+                        Mode = SqliteOpenMode.ReadWrite,
+                        Cache = SqliteCacheMode.Private
+                    };
 
-                Builder.Append("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path));");
-                Builder.Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';");
-                Builder.Append("Delete From PathTagMapping Where Label = 'None';");
-
-                using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileTag\"", Connection, Transaction))
-                {
-                    if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                    using (SqliteConnection Connection = new SqliteConnection(ConnectionBuilder.ToString()))
                     {
-                        Builder.Append("Insert Or Ignore Into PathTagMapping (Path, Label) Select Path, ColorTag From FileTag;")
-                               .Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';")
-                               .Append("Update PathTagMapping Set Label = 'PredefineLabel1' Where Label = 'Blue';")
-                               .Append("Update PathTagMapping Set Label = 'PredefineLabel2' Where Label = 'Green';")
-                               .Append("Update PathTagMapping Set Label = 'PredefineLabel3' Where Label = 'Orange';")
-                               .Append("Update PathTagMapping Set Label = 'PredefineLabel4' Where Label = 'Purple';")
-                               .Append("Drop Table FileTag;");
-                    }
-                }
+                        Connection.Open();
 
-                bool HasGroupColumnColumn = false;
-                bool HasGroupDirectionColumn = false;
-
-                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('PathConfiguration')", Connection, Transaction))
-                using (SqliteDataReader Reader = Command.ExecuteReader())
-                {
-                    while (Reader.Read())
-                    {
-                        switch (Convert.ToString(Reader[1]))
+                        using (SqliteTransaction Transaction = Connection.BeginTransaction())
                         {
-                            case "GroupColumn":
-                                HasGroupColumnColumn = true;
-                                break;
-                            case "GroupDirection":
-                                HasGroupDirectionColumn = true;
-                                break;
+                            StringBuilder QueryBuilder = new StringBuilder("Delete From ProgramPicker Where FileType = '.*';");
+
+                            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileColor\"", Connection, Transaction))
+                            {
+                                if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                                {
+                                    QueryBuilder.Append("Insert Or Ignore Into FileTag (Path, ColorTag) Select Path, Color From FileColor;")
+                                           .Append("Update FileTag Set ColorTag = 'Blue' Where ColorTag = '#FF42C5FF';")
+                                           .Append("Update FileTag Set ColorTag = 'Green' Where ColorTag = '#FF22B324';")
+                                           .Append("Update FileTag Set ColorTag = 'Orange' Where ColorTag = '#FFFFA500';")
+                                           .Append("Update FileTag Set ColorTag = 'Purple' Where ColorTag = '#FFCC6EFF';")
+                                           .Append("Drop Table FileColor;");
+                                }
+                            }
+
+                            QueryBuilder.Append("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path));");
+                            QueryBuilder.Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';");
+                            QueryBuilder.Append("Delete From PathTagMapping Where Label = 'None';");
+
+                            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileTag\"", Connection, Transaction))
+                            {
+                                if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                                {
+                                    QueryBuilder.Append("Insert Or Ignore Into PathTagMapping (Path, Label) Select Path, ColorTag From FileTag;")
+                                           .Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';")
+                                           .Append("Update PathTagMapping Set Label = 'PredefineLabel1' Where Label = 'Blue';")
+                                           .Append("Update PathTagMapping Set Label = 'PredefineLabel2' Where Label = 'Green';")
+                                           .Append("Update PathTagMapping Set Label = 'PredefineLabel3' Where Label = 'Orange';")
+                                           .Append("Update PathTagMapping Set Label = 'PredefineLabel4' Where Label = 'Purple';")
+                                           .Append("Drop Table FileTag;");
+                                }
+                            }
+
+                            bool HasGroupColumnColumn = false;
+                            bool HasGroupDirectionColumn = false;
+
+                            using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('PathConfiguration')", Connection, Transaction))
+                            using (SqliteDataReader Reader = Command.ExecuteReader())
+                            {
+                                while (Reader.Read())
+                                {
+                                    switch (Convert.ToString(Reader[1]))
+                                    {
+                                        case "GroupColumn":
+                                            HasGroupColumnColumn = true;
+                                            break;
+                                        case "GroupDirection":
+                                            HasGroupDirectionColumn = true;
+                                            break;
+                                    }
+                                }
+                            }
+
+                            if (!HasGroupColumnColumn)
+                            {
+                                QueryBuilder.Append("Alter Table PathConfiguration Add GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size'));");
+                            }
+
+                            if (!HasGroupDirectionColumn)
+                            {
+                                QueryBuilder.Append("Alter Table PathConfiguration Add GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending'));");
+                            }
+
+
+                            bool HasIsDefaultColumn = false;
+                            bool HasIsRecommandColumn = false;
+
+                            using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection, Transaction))
+                            using (SqliteDataReader Reader = Command.ExecuteReader())
+                            {
+                                while (Reader.Read())
+                                {
+                                    switch (Convert.ToString(Reader[1]))
+                                    {
+                                        case "IsRecommanded":
+                                            HasIsRecommandColumn = true;
+                                            break;
+                                        case "IsDefault":
+                                            HasIsDefaultColumn = true;
+                                            break;
+                                    }
+                                }
+                            }
+
+                            if (!HasIsDefaultColumn)
+                            {
+                                QueryBuilder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
+                            }
+
+                            if (!HasIsRecommandColumn)
+                            {
+                                QueryBuilder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
+                            }
+
+                            if (!CancelToken.IsCancellationRequested)
+                            {
+                                using (SqliteCommand Command = new SqliteCommand(QueryBuilder.ToString(), Connection, Transaction))
+                                {
+                                    Command.ExecuteNonQuery();
+                                }
+
+                                Transaction.Commit();
+                            }
                         }
                     }
-                }
-
-                if (!HasGroupColumnColumn)
-                {
-                    Builder.Append("Alter Table PathConfiguration Add GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size'));");
-                }
-
-                if (!HasGroupDirectionColumn)
-                {
-                    Builder.Append("Alter Table PathConfiguration Add GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending'));");
-                }
-
-
-                bool HasIsDefaultColumn = false;
-                bool HasIsRecommandColumn = false;
-
-                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection, Transaction))
-                using (SqliteDataReader Reader = Command.ExecuteReader())
-                {
-                    while (Reader.Read())
-                    {
-                        switch (Convert.ToString(Reader[1]))
-                        {
-                            case "IsRecommanded":
-                                HasIsRecommandColumn = true;
-                                break;
-                            case "IsDefault":
-                                HasIsDefaultColumn = true;
-                                break;
-                        }
-                    }
-                }
-
-                if (!HasIsDefaultColumn)
-                {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
-                }
-
-                if (!HasIsRecommandColumn)
-                {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
-                }
-
-                if (!CancelToken.IsCancellationRequested)
-                {
-                    using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection, Transaction))
-                    {
-                        Command.ExecuteNonQuery();
-                    }
-
-                    Transaction.Commit();
-                }
-            });
+                });
+            }
         }
 
         private async Task RefreshJumpListAsync(CancellationToken CancelToken = default)
@@ -298,11 +295,11 @@ namespace MaintenanceTask
                 foreach (JumpListItem OldItem in CurrentJumpList.Items.ToArray())
                 {
                     JumpListItem NewItem = JumpListItem.CreateWithArguments(OldItem.Arguments, OldItem.DisplayName);
-                    
+
                     NewItem.Description = OldItem.Arguments;
                     NewItem.GroupName = OldItem.GroupName;
                     NewItem.Logo = OldItem.Logo;
-                    
+
                     CurrentJumpList.Items[CurrentJumpList.Items.IndexOf(OldItem)] = NewItem;
                 }
 

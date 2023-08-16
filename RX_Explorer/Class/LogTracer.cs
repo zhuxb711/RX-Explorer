@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
 
                 return await Query.GetItemCountAsync() > 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -111,7 +111,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -214,7 +214,7 @@ namespace RX_Explorer.Class
                 Microsoft.AppCenter.Crashes.Crashes.TrackError(Ex, new System.Collections.Generic.Dictionary<string, string>(1) { { "AdditionalComment", string.IsNullOrWhiteSpace(AdditionalComment) ? "<Empty>" : AdditionalComment } });
 #endif
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -235,7 +235,7 @@ namespace RX_Explorer.Class
             {
                 LogInternal($"Date: {DateTimeOffset.Now:G}, Info: {Message}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)

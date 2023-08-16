@@ -1,4 +1,4 @@
-﻿### Was ist neu in Ver.8.3.6
+﻿### Was ist neu in Ver.8.3.7
 
 ##### ⚠Achtung: Uwp ist veraltet, RX-Explorer wurde auf Windows App Sdk migriert
 
@@ -6,6 +6,6 @@
 
 ##### Fehlerbehebungen
 
->##### Einige Implementierungsdetails für den "Aktivierungscode einlösen" wurden aktualisiert.
+>##### Es wurde ein Problem behoben, bei dem Benutzer Aktivierungscodes nicht einlösen konnten
 
->##### Weitere kleinere Verbesserungen und Abhängigkeitsaktualisierungen
+>##### Einige andere kleinere Probleme wurden behoben

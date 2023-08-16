@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.3.6
+﻿###Novedades de la versión 8.3.7
 
 ##### ⚠Atención: Uwp está en desuso, RX-Explorer se ha migrado a Windows App Sdk
 
@@ -6,6 +6,6 @@
 
 ##### Correcciones de errores
 
->##### Se actualizaron algunos detalles de implementación para el "Canjear código de activación"
+>##### Se ha corregido un problema por el que el usuario no podía canjear códigos de activación
 
->##### Otras mejoras menores y actualizaciones de dependencias
+>##### Se han corregido algunos otros problemas menores
