@@ -112,7 +112,7 @@ namespace AuxiliaryTrustProcess.Class
 
                 LogInternal(Builder.ToString());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -123,8 +123,6 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -168,7 +166,7 @@ namespace AuxiliaryTrustProcess.Class
 
                 LogInternal(Builder.ToString());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -179,8 +177,6 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -225,7 +221,7 @@ namespace AuxiliaryTrustProcess.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -236,8 +232,6 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
 #endif
             }
         }

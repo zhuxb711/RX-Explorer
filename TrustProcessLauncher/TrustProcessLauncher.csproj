@@ -8,11 +8,13 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<TieredPGO>true</TieredPGO>
+		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<TieredCompilation>true</TieredCompilation>
+		<TrimMode>full</TrimMode>
 		<PublishTrimmed>true</PublishTrimmed>
-		<TieredPGO>true</TieredPGO>
+		<PublishReadyToRun>true</PublishReadyToRun>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -20,7 +22,4 @@
 	<PropertyGroup Condition="'$(Platform)' == 'ARM64'">
 		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
 	</PropertyGroup>
-	<ItemGroup>
-	  <PackageReference Include="CommandLineParser" Version="2.9.1" />
-	</ItemGroup>
 </Project>

@@ -13,7 +13,6 @@
 		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<PublishTrimmed>true</PublishTrimmed>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">

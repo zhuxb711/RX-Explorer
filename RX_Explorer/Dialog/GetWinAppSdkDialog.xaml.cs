@@ -3,7 +3,6 @@ using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
@@ -82,16 +81,30 @@ namespace RX_Explorer.Dialog
                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
                             {
                                 string AADToken = await Exclusive.Controller.GetAADTokenFromBackendAsync(Cancellation.Token);
-                                string CustomerCollectionsId = await MSStoreHelper.GetCustomerCollectionsIdAsync(AADToken, AccountName);
 
-                                RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, Cancellation.Token);
+                                if (string.IsNullOrEmpty(AADToken))
+                                {
+                                    throw new Exception("Could not retrieve AAD token from server");
+                                }
+                                else
+                                {
+                                    string CustomerCollectionsId = await MSStoreHelper.GetCustomerCollectionsIdAsync(AADToken, AccountName);
 
-                                ActivateCodeTextBox.Text = RedeemCodeResponse.RedeemCode;
-                                ActivateUrlTextBox.Text = RedeemCodeResponse.RedeemUrl;
-                                CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
-                                ActivateUrlTextBox.Visibility = Visibility.Visible;
-                                CodeValidDate.Visibility = Visibility.Visible;
-                                GetActivationCodeButton.Visibility = Visibility.Collapsed;
+                                    if (string.IsNullOrEmpty(CustomerCollectionsId))
+                                    {
+                                        throw new Exception("Could not retrieve customer collection id token");
+                                    }
+                                    else
+                                    {
+                                        RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, Cancellation.Token);
+                                        ActivateCodeTextBox.Text = RedeemCodeResponse.RedeemCode;
+                                        ActivateUrlTextBox.Text = RedeemCodeResponse.RedeemUrl;
+                                        CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
+                                        ActivateUrlTextBox.Visibility = Visibility.Visible;
+                                        CodeValidDate.Visibility = Visibility.Visible;
+                                        GetActivationCodeButton.Visibility = Visibility.Collapsed;
+                                    }
+                                }
                             }
                         }
                         catch (Exception ex)

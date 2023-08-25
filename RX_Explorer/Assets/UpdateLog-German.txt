@@ -1,4 +1,4 @@
-﻿### Was ist neu in Ver.8.3.7
+﻿### Was ist neu in Ver.8.3.8
 
 ##### ⚠Achtung: Uwp ist veraltet, RX-Explorer wurde auf Windows App Sdk migriert
 
@@ -6,6 +6,6 @@
 
 ##### Fehlerbehebungen
 
->##### Es wurde ein Problem behoben, bei dem Benutzer Aktivierungscodes nicht einlösen konnten
+>##### Es wurde ein Problem behoben, das dazu führen konnte, dass einige Funktionen nicht ordnungsgemäß ausgeführt wurden.
 
->##### Einige andere kleinere Probleme wurden behoben
+>##### Einige Probleme mit der Startleistung wurden behoben

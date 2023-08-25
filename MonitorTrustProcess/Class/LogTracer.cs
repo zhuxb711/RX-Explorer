@@ -29,12 +29,6 @@ namespace MonitorTrustProcess.Class
             BackgroundProcessThread.Start();
         }
 
-        /// <summary>
-        /// 记录错误
-        /// </summary>
-        /// <param name="Ex">错误</param>
-        /// <param name="AdditionalComment">附加信息</param>
-        /// <returns></returns>
         public static void Log(Exception Ex, string AdditionalComment = null, [CallerMemberName] string MemberName = null, [CallerFilePath] string SourceFilePath = null, [CallerLineNumber] int SourceLineNumber = 0)
         {
             if (Ex == null)
@@ -112,7 +106,7 @@ namespace MonitorTrustProcess.Class
 
                 LogInternal(Builder.ToString());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -123,8 +117,6 @@ namespace MonitorTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -168,7 +160,7 @@ namespace MonitorTrustProcess.Class
 
                 LogInternal(Builder.ToString());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -179,8 +171,6 @@ namespace MonitorTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -193,11 +183,6 @@ namespace MonitorTrustProcess.Class
             }
         }
 
-        /// <summary>
-        /// 记录错误
-        /// </summary>
-        /// <param name="Message">错误消息</param>
-        /// <returns></returns>
         private static void LogInternal(string Message)
         {
             LogCollection.Add(Message + Environment.NewLine);
@@ -225,7 +210,7 @@ namespace MonitorTrustProcess.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -236,8 +221,6 @@ namespace MonitorTrustProcess.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
 #endif
             }
         }

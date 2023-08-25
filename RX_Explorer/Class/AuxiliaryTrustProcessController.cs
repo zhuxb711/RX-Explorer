@@ -496,6 +496,11 @@ namespace RX_Explorer.Class
 
         public async Task<RedeemCodeContentResponseDto> GetRedeemCodeFromBackendAsync(string CustomerCollectionId, CancellationToken CancelToken = default)
         {
+            if (string.IsNullOrWhiteSpace(CustomerCollectionId))
+            {
+                throw new ArgumentException(nameof(CustomerCollectionId));
+            }
+
             using (CancelToken.Register(() =>
             {
                 if (!TryCancelCurrentOperation())

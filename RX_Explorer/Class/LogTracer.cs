@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Nito.AsyncEx.Synchronous;
 using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -45,7 +46,7 @@ namespace RX_Explorer.Class
                 {
                     IndexerOption = IndexerOption.DoNotUseIndexer,
                     FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>10"
+                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\""
                 });
 
                 return await Query.GetItemCountAsync() > 0;
@@ -79,7 +80,7 @@ namespace RX_Explorer.Class
                     {
                         IndexerOption = IndexerOption.DoNotUseIndexer,
                         FolderDepth = FolderDepth.Shallow,
-                        ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>10"
+                        ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\""
                     });
 
                     using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
@@ -264,29 +265,33 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), CreateType.File, CollisionOptions.Skip).Result is FileSystemStorageFile LogFile)
+                string LogFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName);
+
+                if (FileSystemStorageItemBase.CreateNewAsync(LogFilePath, CreateType.File, CollisionOptions.OverrideOnCollision).WaitAndUnwrapException() is FileSystemStorageFile LogFile)
                 {
-                    using (Stream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Write).Result)
+                    using (Stream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).WaitAndUnwrapException())
                     using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
                     {
-                        LogStream.Seek(0, SeekOrigin.End);
+                        Writer.AutoFlush = true;
 
                         while (true)
                         {
                             string LogItem = LogCollection.Take();
 
-                            Writer.WriteLine(LogItem);
-                            Writer.Flush();
+                            if (!string.IsNullOrEmpty(LogItem))
+                            {
+                                Writer.WriteLine(LogItem);
 
 #if DEBUG
-                            Debug.WriteLine(LogItem);
+                                Debug.WriteLine(LogItem);
 #endif
+                            }
                         }
                     }
                 }
                 else
                 {
-                    throw new IOException("Could not create log file");
+                    throw new IOException($"Could not create log file on \"{LogFilePath}\"");
                 }
             }
             catch (Exception ex)

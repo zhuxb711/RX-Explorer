@@ -1,47 +1,45 @@
-﻿using CommandLine;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using TrustProcessLauncher.Class;
+using System.Linq;
 
 namespace TrustProcessLauncher
 {
     internal class Program
     {
         [STAThread]
-        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommandLineOptions))]
         static void Main(string[] args)
         {
-            Parser ArgumentParser = new Parser((With) =>
-            {
-                With.AutoHelp = true;
-                With.CaseInsensitiveEnumValues = true;
-                With.IgnoreUnknownArguments = true;
-                With.CaseSensitive = true;
-            });
+            string ProcessPath = Path.GetDirectoryName(Path.GetDirectoryName(Environment.ProcessPath));
 
-            ArgumentParser.ParseArguments<CommandLineOptions>(args).WithParsed((Options) =>
+            switch (args.LastOrDefault())
             {
-                string ProcessAbsPath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(Environment.ProcessPath)), Options.IsLaunchAuxiliaryTrustProcess ? "AuxiliaryTrustProcess\\AuxiliaryTrustProcess.exe" : (Options.IsLaunchMonitorTrustProcess ? "MonitorTrustProcess\\MonitorTrustProcess.exe" : throw new NotSupportedException()));
+                case "--MonitorTrustProcess":
+                    {
+                        ProcessPath = Path.Combine(ProcessPath, "MonitorTrustProcess\\MonitorTrustProcess.exe");
+                        break;
+                    }
+                case "--AuxiliaryTrustProcess":
+                    {
+                        ProcessPath = Path.Combine(ProcessPath, "AuxiliaryTrustProcess\\AuxiliaryTrustProcess.exe");
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException();
+                    }
+            }
 
-                if (File.Exists(ProcessAbsPath))
+            if (File.Exists(ProcessPath))
+            {
+                using (Process FullTrustProcess = Process.Start(ProcessPath))
                 {
-                    ProcessStartInfo StartInfo = new ProcessStartInfo
+                    if ((FullTrustProcess?.HasExited).GetValueOrDefault(true))
                     {
-                        UseShellExecute = false,
-                        FileName = ProcessAbsPath
-                    };
-
-                    using (Process FullTrustProcess = Process.Start(StartInfo))
-                    {
-                        if ((FullTrustProcess?.HasExited).GetValueOrDefault(true))
-                        {
-                            throw new Exception("Unable to launch the full trust process");
-                        }
+                        throw new Exception($"Unable to launch the full trust process, path: {ProcessPath}");
                     }
                 }
-            });
+            }
         }
     }
 }

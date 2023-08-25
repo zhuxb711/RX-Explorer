@@ -106,19 +106,18 @@ namespace AuxiliaryTrustProcess.Class
 
                             if (!string.IsNullOrEmpty(ResponseRawJsonString))
                             {
-                                JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+                                JsonSourceGenerationContext CaseInsensitiveContext = new JsonSourceGenerationContext(new JsonSerializerOptions
                                 {
-                                    PropertyNameCaseInsensitive = true,
-                                    TypeInfoResolver = JsonSourceGenerationContext.Default
-                                };
+                                    PropertyNameCaseInsensitive = true
+                                });
 
                                 if (Response.IsSuccessStatusCode)
                                 {
-                                    return JsonSerializer.Deserialize<BackendResponseBaseData<T>>(ResponseRawJsonString, JsonOptions).Content;
+                                    return ((BackendResponseBaseData<T>)JsonSerializer.Deserialize(ResponseRawJsonString, typeof(BackendResponseBaseData<T>), CaseInsensitiveContext)).Content;
                                 }
                                 else
                                 {
-                                    throw new Exception(JsonSerializer.Deserialize<BackendResponseBaseData>(ResponseRawJsonString, JsonOptions).ErrorMessage);
+                                    throw new Exception(JsonSerializer.Deserialize(ResponseRawJsonString, CaseInsensitiveContext.BackendResponseBaseData).ErrorMessage);
                                 }
                             }
 
