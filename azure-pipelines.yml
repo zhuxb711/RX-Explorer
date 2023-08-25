@@ -33,6 +33,8 @@ variables:
     value: '$(Agent.TempDirectory)\WinSDK'
   - name: WindowsSDKInstallerLocation
     value: '$(Agent.TempDirectory)\WinSDK\winsdksetup.exe'
+  - name: NUGET_RESTORE_MSBUILD_ARGS
+    value: "/p:Configuration=$(BuildConfiguration)"
 
 jobs:
   - job: CIBuild
