@@ -25,7 +25,14 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("MonitorTrustProcess");
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11))
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppWithArgumentsAsync("--MonitorTrustProcess");
+                }
+                else
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("MonitorTrustProcess");
+                }
 
                 if (!await ConnectRemoteAsync())
                 {

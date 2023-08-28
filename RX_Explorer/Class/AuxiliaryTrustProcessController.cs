@@ -251,7 +251,14 @@ namespace RX_Explorer.Class
 
             try
             {
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("AuxiliaryTrustProcess");
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11))
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppWithArgumentsAsync("--AuxiliaryTrustProcess");
+                }
+                else
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("AuxiliaryTrustProcess");
+                }
 
                 if (await Controller.ConnectRemoteAsync())
                 {
