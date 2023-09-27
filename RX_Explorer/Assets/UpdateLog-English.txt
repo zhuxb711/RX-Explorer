@@ -1,11 +1,9 @@
-﻿### What's new in Ver.8.3.8
+﻿### What's new in Ver.8.3.9
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
 >##### Windows App Sdk is an alternative framework for Uwp. The new version was released on May 1 ([Click here to download](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3)), users who have purchased the Uwp one can go to "Settings - Version" to get the activation code
 
-##### Bug fixes
+##### Minor updates
 
->##### Fixed an issue that could prevent some features from running properly
-
->##### Fixed some startup performance issues
+>##### Updated some third-party components
