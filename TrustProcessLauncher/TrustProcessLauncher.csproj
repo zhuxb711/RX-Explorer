@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -8,13 +8,12 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-		<TieredPGO>true</TieredPGO>
-		<TieredCompilation>true</TieredCompilation>
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
 		<TrimMode>full</TrimMode>
+		<TieredPGO>true</TieredPGO>
+		<PublishAot>true</PublishAot>
+		<SelfContained>true</SelfContained>
 		<PublishTrimmed>true</PublishTrimmed>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishSingleFile>true</PublishSingleFile>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>

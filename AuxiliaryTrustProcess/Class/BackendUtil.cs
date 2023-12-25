@@ -117,7 +117,7 @@ namespace AuxiliaryTrustProcess.Class
                                 }
                                 else
                                 {
-                                    throw new Exception(JsonSerializer.Deserialize(ResponseRawJsonString, CaseInsensitiveContext.BackendResponseBaseData).ErrorMessage);
+                                    throw new Exception(JsonSerializer.Deserialize(ResponseRawJsonString, CaseInsensitiveContext.BackendResponseBaseData).FailureReason);
                                 }
                             }
 

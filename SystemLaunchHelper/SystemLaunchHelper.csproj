@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows10.0.22621.0</TargetFramework>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -10,8 +10,8 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<TieredPGO>true</TieredPGO>
-		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
+		<TieredCompilation>true</TieredCompilation>
 		<PublishSingleFile>true</PublishSingleFile>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>

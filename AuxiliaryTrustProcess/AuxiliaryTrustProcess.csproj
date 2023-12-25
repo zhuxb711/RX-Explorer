@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -9,8 +9,8 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<TieredPGO>true</TieredPGO>
-		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
+		<TieredCompilation>true</TieredCompilation>
 		<PublishSingleFile>true</PublishSingleFile>
 		<PublishReadyToRun>true</PublishReadyToRun>
 	</PropertyGroup>

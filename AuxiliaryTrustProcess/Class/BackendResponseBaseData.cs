@@ -8,15 +8,15 @@ namespace AuxiliaryTrustProcess.Class
 
         public string Service { get; }
 
-        public string ErrorMessage { get; }
+        public string FailureReason { get; }
 
         public DateTimeOffset TimeStamp { get; }
 
-        public BackendResponseBaseData(string Status, string Service, string ErrorMessage, DateTimeOffset TimeStamp)
+        public BackendResponseBaseData(string Status, string Service, string FailureReason, DateTimeOffset TimeStamp)
         {
             this.Status = Status;
             this.Service = Service;
-            this.ErrorMessage = ErrorMessage;
+            this.FailureReason = FailureReason;
             this.TimeStamp = TimeStamp;
         }
     }

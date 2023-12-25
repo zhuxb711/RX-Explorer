@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,6 @@ namespace SystemLaunchHelper
     internal class Program
     {
         [STAThread]
-        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommandLineOptions))]
         static void Main(string[] args)
         {
             Parser ArgumentParser = new Parser((With) =>
