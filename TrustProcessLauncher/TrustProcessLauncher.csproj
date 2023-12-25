@@ -13,7 +13,6 @@
 		<PublishAot>true</PublishAot>
 		<SelfContained>true</SelfContained>
 		<PublishTrimmed>true</PublishTrimmed>
-		<PublishSingleFile>true</PublishSingleFile>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
