@@ -1,4 +1,4 @@
-﻿### What's new in Ver.8.4.0
+﻿### What's new in Ver.8.4.1
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 

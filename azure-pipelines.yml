@@ -43,14 +43,19 @@ jobs:
     pool:
       vmImage: "windows-latest"
     steps:
-      # UseDotNet@2 task to install .Net 7 environment because Azure Pipeline would not prepare the SDK we needed.
-      # Maybe we could remove this task once Azure Pipeline install .Net 7 SDK by default.
       - task: UseDotNet@2
         displayName: "Install .Net 7 SDK"
         inputs:
           packageType: sdk
           installationPath: $(TempDirectory)
           version: 7.x
+
+      - task: UseDotNet@2
+        displayName: "Install .Net 8 SDK"
+        inputs:
+          packageType: sdk
+          installationPath: $(TempDirectory)
+          version: 8.x
 
       # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2
@@ -147,14 +152,19 @@ jobs:
     pool:
       vmImage: "windows-latest"
     steps:
-      # UseDotNet@2 task to install .Net 7 environment because Azure Pipeline would not prepare the SDK we needed.
-      # Maybe we could remove this task once Azure Pipeline install .Net 7 SDK by default.
       - task: UseDotNet@2
         displayName: "Install .Net 7 SDK"
         inputs:
           packageType: sdk
           installationPath: $(TempDirectory)
           version: 7.x
+
+      - task: UseDotNet@2
+        displayName: "Install .Net 8 SDK"
+        inputs:
+          packageType: sdk
+          installationPath: $(TempDirectory)
+          version: 8.x
 
       # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2

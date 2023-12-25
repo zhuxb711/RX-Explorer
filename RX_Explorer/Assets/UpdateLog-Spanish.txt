@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.4.0
+﻿###Novedades de la versión 8.4.1
 
 ##### ⚠Atención: Uwp está en desuso, RX-Explorer se ha migrado a Windows App Sdk
 
