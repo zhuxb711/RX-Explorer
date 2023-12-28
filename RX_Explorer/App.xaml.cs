@@ -409,7 +409,7 @@ namespace RX_Explorer
 
                         if (SpecificPathArray.Length > 0)
                         {
-                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
+                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray.Select((Item) => new string[] { Item }).ToArray());
                         }
                         else
                         {

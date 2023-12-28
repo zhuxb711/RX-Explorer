@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -21,29 +23,28 @@ namespace RX_Explorer.View
 
         private readonly IReadOnlyList<string[]> Parameter;
 
-        public ExtendedSplash(SplashScreen Screen, IReadOnlyList<string[]> Parameter) : this(Screen)
+        public ExtendedSplash(SplashScreen Splash, IReadOnlyList<string[]> Parameter) : this(Splash)
         {
             this.Parameter = Parameter;
         }
 
-        public ExtendedSplash(SplashScreen Screen, string[] Parameter) : this(Screen)
+        public ExtendedSplash(SplashScreen Splash) : this()
         {
-            this.Parameter = Parameter.Select((Item) => new string[] { Item }).ToArray();
+            this.Splash = Splash ?? throw new ArgumentNullException(nameof(Splash), "Parameter could not be null");
+            this.Splash.Dismissed += Screen_Dismissed;
         }
 
-        public ExtendedSplash(SplashScreen Screen)
+        private ExtendedSplash()
         {
             InitializeComponent();
-
+            SetControlsPosition();
             Window.Current.SetTitleBar(TitleBar);
 
-#if DEBUG
-            AppName.Text += $" ({Globalization.GetString("Development_Version")})";
-#endif
+            if (Package.Current.IsDevelopmentMode)
+            {
+                AppName.Text += $" ({Globalization.GetString("Development_Version")})";
+            }
 
-            Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");
-
-            Splash.Dismissed += Screen_Dismissed;
             Loaded += ExtendedSplash_Loaded;
             Unloaded += ExtendedSplash_Unloaded;
         }
@@ -55,35 +56,30 @@ namespace RX_Explorer.View
 
         private void ExtendedSplash_Loaded(object sender, RoutedEventArgs e)
         {
-            SetControlsPosition();
             Window.Current.SizeChanged += Current_SizeChanged;
         }
 
         private void SetControlsPosition()
         {
-            if (Splash != null)
+            Rect ImageLocation = (Splash?.ImageLocation).GetValueOrDefault();
+
+            if (PermissionArea.Visibility == Visibility.Visible)
             {
-                double HorizonLocation = Splash.ImageLocation.X + (Splash.ImageLocation.Width * 0.5);
-                double VerticalLocation = Splash.ImageLocation.Y + (Splash.ImageLocation.Height * 0.7);
-
-                if (PermissionArea.Visibility == Visibility.Visible)
-                {
-                    Canvas.SetTop(PermissionArea, VerticalLocation + 15);
-                    Canvas.SetLeft(PermissionArea, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
-                }
-
-                if (LoadingArea.Visibility == Visibility.Visible)
-                {
-                    Canvas.SetTop(LoadingArea, VerticalLocation + 15);
-                    Canvas.SetLeft(LoadingArea, HorizonLocation - (LoadingArea.ActualWidth * 0.5));
-                }
-
-                Logo.Height = Splash.ImageLocation.Height;
-                Logo.Width = Splash.ImageLocation.Width;
-
-                Canvas.SetTop(Logo, Splash.ImageLocation.Y);
-                Canvas.SetLeft(Logo, Splash.ImageLocation.X);
+                Canvas.SetTop(PermissionArea, ImageLocation.Y + (ImageLocation.Height * 0.7) + 15);
+                Canvas.SetLeft(PermissionArea, ImageLocation.X + (ImageLocation.Width * 0.5) - (PermissionArea.ActualWidth * 0.5));
             }
+
+            if (LoadingArea.Visibility == Visibility.Visible)
+            {
+                Canvas.SetTop(LoadingArea, ImageLocation.Y + (ImageLocation.Height * 0.7) + 15);
+                Canvas.SetLeft(LoadingArea, ImageLocation.X + (ImageLocation.Width * 0.5) - (LoadingArea.ActualWidth * 0.5));
+            }
+
+            Canvas.SetTop(Logo, ImageLocation.Y);
+            Canvas.SetLeft(Logo, ImageLocation.X);
+
+            Logo.Width = ImageLocation.Width;
+            Logo.Height = ImageLocation.Height;
         }
 
         private async Task DismissExtendedSplashAsync()
