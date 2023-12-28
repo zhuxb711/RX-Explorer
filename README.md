@@ -1,4 +1,6 @@
-# RX 文件管理器
+# RX文件管理器(UWP) (已弃用)
+
+> RX文件管理器(UWP)已弃用，仍将继续开源并进行基本维护。RX文件管理器(UWP)的功能已重构并迁移至RX文件管理器(WAS)且已闭源。
 
 [![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases) [![Microsoft Store](https://img.shields.io/static/v1?label=Microsoft+Store&message=Install&color=ff69b4)](https://www.microsoft.com/store/productId/9N88QBQKF2RS) [![Stars](https://img.shields.io/github/stars/zhuxb711/RX-Explorer?color=%23A020F0&label=Stars)](https://github.com/zhuxb711/RX-Explorer)
 
@@ -81,7 +83,9 @@ Ruofan
 
 ---
 
-# RX Explorer
+# RX-Explorer (UWP) (Deprecated)
+
+> RX-Explorer (UWP) has been deprecated and will continue to be open source with basic maintenance. RX-Explorer (UWP) has been refactored and migrated to the RX-Explorer (WAS) , which is closed source.
 
 [![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases) [![Microsoft Store](https://img.shields.io/static/v1?label=Microsoft+Store&message=Install&color=ff69b4)](https://www.microsoft.com/store/productId/9N88QBQKF2RS) [![Stars](https://img.shields.io/github/stars/zhuxb711/RX-Explorer?color=%23A020F0&label=Stars)](https://github.com/zhuxb711/RX-Explorer)
 
