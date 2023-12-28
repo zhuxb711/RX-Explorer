@@ -18,8 +18,8 @@ typedef BOOL(WINAPI* LPFN_GLPI)(
 
 namespace SystemInformationProvider
 {
-    public ref class SystemInformation sealed
-    {
+	public ref class SystemInformation sealed
+	{
 	public:
 		property static String^ CPUName
 		{
@@ -363,7 +363,7 @@ namespace SystemInformationProvider
 				logicalProcessorCount;
 				return processorCoreCount.ToString() + "||" + logicalProcessorCount.ToString() + "||" + L1SIZE.ToString() + "||" + L2SIZE.ToString() + "||" + L3SIZE.ToString();
 #else
-return ref new String();
+				return ref new String();
 #endif
 			}
 		}
@@ -436,5 +436,5 @@ return ref new String();
 
 	private:
 		SystemInformation();
-    };
+	};
 }

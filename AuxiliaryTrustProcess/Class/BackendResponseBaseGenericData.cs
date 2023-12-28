@@ -6,7 +6,7 @@ namespace AuxiliaryTrustProcess.Class
     {
         public T Content { get; }
 
-        public BackendResponseBaseData(string Status, string Service, string ErrorMessage, T Content, DateTimeOffset TimeStamp) : base(Status, Service, ErrorMessage, TimeStamp)
+        public BackendResponseBaseData(string Status, string Service, string FailureReason, T Content, DateTimeOffset TimeStamp) : base(Status, Service, FailureReason, TimeStamp)
         {
             this.Content = Content;
         }

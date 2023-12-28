@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RX_Explorer", "RX_Explorer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationEffectProvider", "AnimationEffectProvider\AnimationEffectProvider.csproj", "{3B40A94D-6173-4B62-971E-27ABDBECE9D6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemInformationProvider", "SystemInformationProvider\SystemInformationProvider.vcxproj", "{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCheckBackgroundTask", "UpdateCheckBackgroundTask\UpdateCheckBackgroundTask.csproj", "{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuxiliaryTrustProcess", "AuxiliaryTrustProcess\AuxiliaryTrustProcess.csproj", "{04F23FCE-9DCC-4B3E-B088-F1016F628C65}"
@@ -28,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitorTrustProcess", "MonitorTrustProcess\MonitorTrustProcess.csproj", "{CC82B2D3-4F91-4215-82FF-ADFB7784F847}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrustProcessLauncher", "TrustProcessLauncher\TrustProcessLauncher.csproj", "{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemInformationProvider", "SystemInformationProvider\SystemInformationProvider.vcxproj", "{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,14 +53,6 @@ Global
 		{3B40A94D-6173-4B62-971E-27ABDBECE9D6}.Release|ARM64.Build.0 = Release|ARM64
 		{3B40A94D-6173-4B62-971E-27ABDBECE9D6}.Release|x64.ActiveCfg = Release|x64
 		{3B40A94D-6173-4B62-971E-27ABDBECE9D6}.Release|x64.Build.0 = Release|x64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Debug|ARM64.Build.0 = Debug|ARM64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Debug|x64.ActiveCfg = Debug|x64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Debug|x64.Build.0 = Debug|x64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Release|ARM64.ActiveCfg = Release|ARM64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Release|ARM64.Build.0 = Release|ARM64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Release|x64.ActiveCfg = Release|x64
-		{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}.Release|x64.Build.0 = Release|x64
 		{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}.Debug|ARM64.Build.0 = Debug|ARM64
 		{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}.Debug|x64.ActiveCfg = Debug|x64
@@ -145,6 +137,14 @@ Global
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|ARM64.Build.0 = Release|ARM64
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|x64.ActiveCfg = Release|x64
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|x64.Build.0 = Release|x64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Debug|ARM64.Build.0 = Debug|ARM64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Debug|x64.ActiveCfg = Debug|x64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Debug|x64.Build.0 = Debug|x64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Release|ARM64.ActiveCfg = Release|ARM64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Release|ARM64.Build.0 = Release|ARM64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Release|x64.ActiveCfg = Release|x64
+		{7180AF0D-B012-46B7-A18F-9A0F10A2BB76}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

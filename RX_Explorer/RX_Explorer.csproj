@@ -913,7 +913,7 @@
       <Name>SharedLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
-      <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>
+      <Project>{7180af0d-b012-46b7-a18f-9a0f10a2bb76}</Project>
       <Name>SystemInformationProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\UpdateCheckBackgroundTask\UpdateCheckBackgroundTask.csproj">
