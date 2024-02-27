@@ -21,8 +21,8 @@ namespace AuxiliaryTrustProcess.Class
 
         public static async Task<T> SendAndGetResponseAsync<T>(Uri APIEndPoint, HttpMethod Method, HttpContent Content = null, CancellationToken CancelToken = default)
         {
-            using (X509Certificate2 CARootCertificate = new X509Certificate2(CARootCertificatePath))
             using (SecureString ClientPassword = "<RX-Explorer-Client-Certificate-Secret-Value>".ToSecureString())
+            using (X509Certificate2 CARootCertificate = new X509Certificate2(CARootCertificatePath))
             using (X509Certificate2 ClientCertificate = new X509Certificate2(ClientCertificatePath, ClientPassword))
             {
                 if (!CARootCertificate.Thumbprint.Equals("6214E899BDD239EF372330D69F56ABE276ED7F21", StringComparison.OrdinalIgnoreCase)

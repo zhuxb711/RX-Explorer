@@ -1,4 +1,4 @@
-﻿### What's new in Ver.8.4.1
+﻿### What's new in Ver.8.4.2
 
 #### ⚠Attention: Uwp is deprecated, RX-Explorer has been migrated to Windows App Sdk
 
@@ -7,3 +7,5 @@
 ##### Minor updates
 
 >##### Updated some third-party components
+
+>##### Optimized the logic of getting the activation code for RX-Explorer (WAS)

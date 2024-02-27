@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.System;
 
 namespace RX_Explorer.Class
 {
@@ -181,7 +180,14 @@ namespace RX_Explorer.Class
                 throw new ArgumentException(nameof(AzureADToken));
             }
 
-            return await Store.GetCustomerCollectionsIdAsync(AzureADToken, UserId);
+            string CustomerCollectionsId = await Store.GetCustomerCollectionsIdAsync(AzureADToken, UserId);
+
+            if (string.IsNullOrEmpty(CustomerCollectionsId))
+            {
+                throw new Exception("Could not retrieve customer collection id token");
+            }
+
+            return CustomerCollectionsId;
         }
 
         private static async void Store_OfflineLicensesChanged(StoreContext sender, object args)

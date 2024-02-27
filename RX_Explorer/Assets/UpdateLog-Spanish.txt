@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.4.1
+﻿###Novedades de la versión 8.4.2
 
 ##### ⚠Atención: Uwp está en desuso, RX-Explorer se ha migrado a Windows App Sdk
 
@@ -7,3 +7,5 @@
 ##### Actualizaciones menores
 
 >##### Se actualizaron algunos componentes de terceros
+
+>##### Optimizada la lógica de obtención del código de activación para RX-Explorer (WAS)
