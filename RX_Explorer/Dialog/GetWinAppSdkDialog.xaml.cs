@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Services.Store;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -37,7 +36,7 @@ namespace RX_Explorer.Dialog
                     }
                 }
 
-                foreach (User CurrentUser in UserList.Prepend(User.GetDefault()).OfType<User>())
+                foreach (User CurrentUser in UserList.Prepend(Helper.AbsorbException(User.GetDefault)).OfType<User>())
                 {
                     string AccountName = Convert.ToString(await Helper.AbsorbExceptionAsync(() => CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName).AsTask()));
 
@@ -95,7 +94,7 @@ namespace RX_Explorer.Dialog
 
                                     RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, Cancellation.Token);
 
-                                    CodeValidDate.Visibility = Visibility.Visible; 
+                                    CodeValidDate.Visibility = Visibility.Visible;
                                     ActivateUrlTextBox.Visibility = Visibility.Visible;
                                     GetActivationCodeButton.Visibility = Visibility.Collapsed;
                                     ActivateUrlTextBox.Text = RedeemCodeResponse.RedeemUrl;
@@ -147,6 +146,7 @@ namespace RX_Explorer.Dialog
             Package.SetText(ActivateUrlTextBox.Text);
 
             Clipboard.SetContent(Package);
+            Clipboard.Flush();
         }
 
         private async void ContactDeveloper_Click(object sender, RoutedEventArgs e)

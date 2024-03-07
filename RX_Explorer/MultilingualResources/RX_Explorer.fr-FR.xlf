@@ -4984,8 +4984,8 @@ Les noms non valides incluent
           <target state="translated">Utiliser le code d’activation</target>
         </trans-unit>
         <trans-unit id="ContactDeveloper_YourAccount" translate="yes" xml:space="preserve">
-          <source>Your Microsoft account</source>
-          <target state="translated">Votre compte Microsoft</target>
+          <source>Your Microsoft account (Email)</source>
+          <target state="translated">Votre compte Microsoft (Courrier électronique)</target>
         </trans-unit>
         <trans-unit id="ContactDeveloper_YourOrderScreenshot" translate="yes" xml:space="preserve">
           <source>Your orders history screenshot about RX-Explorer in your Microsoft account</source>

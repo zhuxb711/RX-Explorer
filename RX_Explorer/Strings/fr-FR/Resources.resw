@@ -3750,7 +3750,7 @@ Les noms non valides incluent
     <value>Utiliser le code d’activation</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>Votre compte Microsoft</value>
+    <value>Votre compte Microsoft (Courrier électronique)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>Capture d’écran de l’historique de vos commandes sur RX-Explorer dans votre compte Microsoft</value>

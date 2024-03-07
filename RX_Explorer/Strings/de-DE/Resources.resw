@@ -3752,7 +3752,7 @@ Inkorrekte Namen sind
     <value>Aktivierungscode einlösen</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>Ihr Microsoft-Konto</value>
+    <value>Ihr Microsoft-Konto (E-Mail)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>Screenshot Ihres Bestellverlaufs über RX-Explorer in Ihrem Microsoft-Konto</value>

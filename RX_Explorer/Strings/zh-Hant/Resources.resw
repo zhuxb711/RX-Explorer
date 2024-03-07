@@ -3750,7 +3750,7 @@
     <value>兌換啟動碼</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>您的微軟帳戶</value>
+    <value>您的微軟帳戶 (电邮)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>您的 Microsoft 帳戶中有關 RX-Explorer 的訂單歷史記錄螢幕截圖</value>

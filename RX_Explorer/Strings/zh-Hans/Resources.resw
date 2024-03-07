@@ -3750,7 +3750,7 @@
     <value>兑换激活码</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>您的微软账号名称</value>
+    <value>您的微软账号名称 (邮箱)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>您的微软账号中有关RX文件管理器的订单历史截图</value>

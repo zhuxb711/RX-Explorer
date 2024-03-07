@@ -3752,7 +3752,7 @@ Las denominaciones no válidas son:
     <value>Canjear el código de activación</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>Tu cuenta Microsoft</value>
+    <value>Tu cuenta Microsoft (Correo electrónico)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>Captura de pantalla del historial de pedidos sobre RX-Explorer en su cuenta Microsoft</value>

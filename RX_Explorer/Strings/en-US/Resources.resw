@@ -3857,7 +3857,7 @@ Invalid names include
     <value>Redeem the activation code</value>
   </data>
   <data name="ContactDeveloper_YourAccount" xml:space="preserve">
-    <value>Your Microsoft account</value>
+    <value>Your Microsoft account (Email)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
     <value>Your orders history screenshot about RX-Explorer in your Microsoft account</value>
