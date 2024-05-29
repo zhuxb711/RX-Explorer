@@ -83,16 +83,17 @@ namespace RX_Explorer.Dialog
                     }
                     else
                     {
-                        using (CancellationTokenSource Cancellation = new CancellationTokenSource(60000))
+                        try
                         {
-                            try
+                            using (CancellationTokenSource GetAADTokenCancellation = new CancellationTokenSource(TimeSpan.FromMinutes(2)))
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(GetAADTokenCancellation.Token))
                             {
-                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Cancellation.Token))
-                                {
-                                    string AADToken = await Exclusive.Controller.GetAADTokenFromBackendAsync(Cancellation.Token);
-                                    string CustomerCollectionsId = await MSStoreHelper.GetCustomerCollectionsIdAsync(AADToken, AccountName);
+                                string AADToken = await Exclusive.Controller.GetAADTokenFromBackendAsync(GetAADTokenCancellation.Token);
+                                string CustomerCollectionsId = await MSStoreHelper.GetCustomerCollectionsIdAsync(AADToken, AccountName);
 
-                                    RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, Cancellation.Token);
+                                using (CancellationTokenSource GetRedeemCodeCancellation = new CancellationTokenSource(TimeSpan.FromMinutes(2)))
+                                {
+                                    RedeemCodeContentResponseDto RedeemCodeResponse = await Exclusive.Controller.GetRedeemCodeFromBackendAsync(CustomerCollectionsId, GetRedeemCodeCancellation.Token);
 
                                     CodeValidDate.Visibility = Visibility.Visible;
                                     ActivateUrlTextBox.Visibility = Visibility.Visible;
@@ -102,13 +103,13 @@ namespace RX_Explorer.Dialog
                                     CodeValidDate.Text = $"{Globalization.GetString("CodeValidDate")}: {RedeemCodeResponse.StartDate:d} - {RedeemCodeResponse.ExpireDate:d}";
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                ContactDeveloper.Visibility = Visibility.Visible;
-                                ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
-                                ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Redeem_Error");
-                                LogTracer.Log(ex, $"Could not retrieve the activation code, reason: {ex.Message}");
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ContactDeveloper.Visibility = Visibility.Visible;
+                            ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
+                            ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Redeem_Error");
+                            LogTracer.Log(ex, $"Could not retrieve the activation code, reason: {ex.Message}");
                         }
                     }
                 }

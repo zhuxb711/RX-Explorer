@@ -10,7 +10,6 @@ pr:
       - master
 
 variables:
-  - group: UWP-PipeLineVariable
   - name: BuildProject
     value: "Package"
   - name: Solution
@@ -23,16 +22,6 @@ variables:
     value: '$(Build.ArtifactStagingDirectory)\Sideload\\'
   - name: CIBuildPublishLocation
     value: '$(Build.ArtifactStagingDirectory)\CI\\'
-  - name: TempDirectory
-    value: "$(Agent.TempDirectory)"
-  - name: TargetWindowsSDKVersion
-    value: "10.0.22621.1778"
-  - name: TargetWindowsSDKInstallerUrl # Windows SDK 10.0.22621.755
-    value: "https://download.microsoft.com/download/b/8/5/b85bd06f-491c-4c1c-923e-75ce2fe2378e/windowssdk/winsdksetup.exe"
-  - name: WindowsSDKBaseLocation
-    value: '$(Agent.TempDirectory)\WinSDK'
-  - name: WindowsSDKInstallerLocation
-    value: '$(Agent.TempDirectory)\WinSDK\winsdksetup.exe'
   - name: NUGET_RESTORE_MSBUILD_ARGS
     value: "/p:Configuration=$(BuildConfiguration)"
 
@@ -46,48 +35,12 @@ jobs:
       - task: UseDotNet@2
         displayName: "Install .Net 7 SDK"
         inputs:
-          packageType: sdk
-          installationPath: $(TempDirectory)
           version: 7.x
 
       - task: UseDotNet@2
         displayName: "Install .Net 8 SDK"
         inputs:
-          packageType: sdk
-          installationPath: $(TempDirectory)
           version: 8.x
-
-      # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
-      - task: PowerShell@2
-        displayName: "Download And Install Latest Windows SDK As Requirement"
-        inputs:
-          targetType: "inline"
-          script: |
-            try {
-              $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
-            } catch {
-              $CurrentSDKVersion = ''
-              Write-Host "Detect the installed Windows SDK failed. Installed Windows SDK Version is aligned with TargetSDKVersion. Skipping this check"
-            }
-
-            if ($CurrentSDKVersion -ne '') {
-              if($CurrentSDKVersion -lt $(TargetWindowsSDKVersion)) {
-                New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
-
-                Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
-
-                Start-BitsTransfer -Source $(TargetWindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
-
-                Write-Host "Windows SDK Installer download completed"
-                Write-Host "Start installing Windows SDK..."
-
-                Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
-
-                Write-Host "Windows SDK installed completed"
-              } else {
-                Write-Host "Windows SDK meet the requeirement, skipping this task and no need to install the SDK"
-              }
-            }
 
       - task: DownloadSecureFile@1
         name: secureFile
@@ -108,20 +61,6 @@ jobs:
             $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding UTF8
 
             Write-Host "AppCenter secret value was added successfully"
-
-      - task: PowerShell@2
-        displayName: "Add Client Certificate Secret Value"
-        inputs:
-          targetType: "inline"
-          script: |
-            Write-Host "Start adding client certificate secret value."
-
-            $ClientCertificateSecret = '$(clientCert.secret)'
-            $TargetPath = '$(Build.SourcesDirectory)\AuxiliaryTrustProcess\Class\BackendUtil.cs'
-            $TargetContent = Get-Content -Path $TargetPath
-            $TargetContent -Replace '<RX-Explorer-Client-Certificate-Secret-Value>', $ClientCertificateSecret | Set-Content -Path $TargetPath -Encoding UTF8
-
-            Write-Host "Client certificate secret value was added successfully"
 
       - task: NuGetToolInstaller@1
         displayName: "Install Nuget ToolSet"
@@ -155,48 +94,12 @@ jobs:
   #     - task: UseDotNet@2
   #       displayName: "Install .Net 7 SDK"
   #       inputs:
-  #         packageType: sdk
-  #         installationPath: $(TempDirectory)
   #         version: 7.x
 
   #     - task: UseDotNet@2
   #       displayName: "Install .Net 8 SDK"
   #       inputs:
-  #         packageType: sdk
-  #         installationPath: $(TempDirectory)
   #         version: 8.x
-
-  #     # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
-  #     - task: PowerShell@2
-  #       displayName: "Download And Install Latest Windows SDK As Requirement"
-  #       inputs:
-  #         targetType: "inline"
-  #         script: |
-  #           try {
-  #             $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
-  #           } catch {
-  #             $CurrentSDKVersion = ''
-  #             Write-Host "Detect the installed Windows SDK failed. Installed Windows SDK Version is aligned with TargetSDKVersion. Skipping this check"
-  #           }
-
-  #           if ($CurrentSDKVersion -ne '') {
-  #             if($CurrentSDKVersion -lt $(TargetWindowsSDKVersion)) {
-  #               New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
-
-  #               Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
-
-  #               Start-BitsTransfer -Source $(TargetWindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
-
-  #               Write-Host "Windows SDK Installer download completed"
-  #               Write-Host "Start installing Windows SDK..."
-
-  #               Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
-
-  #               Write-Host "Windows SDK installed completed"
-  #             } else {
-  #               Write-Host "Windows SDK meet the requeirement, skipping this task and no need to install the SDK"
-  #             }
-  #           }
 
   #     - task: DownloadSecureFile@1
   #       name: secureFile

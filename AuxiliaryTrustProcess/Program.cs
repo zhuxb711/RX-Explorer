@@ -851,7 +851,7 @@ namespace AuxiliaryTrustProcess
                     {
                         case AuxiliaryTrustProcessCommandType.RetrieveAADTokenFromBackend:
                             {
-                                RetrieveAADTokenContentResponseDto ResponseContentDto = BackendUtil.SendAndGetResponseAsync<RetrieveAADTokenContentResponseDto>(new Uri("https://52.230.36.100:3304/validation/retrieveAADToken"), HttpMethod.Get, CancelToken: Cancellation.Token).Result;
+                                RetrieveAADTokenContentResponseDto ResponseContentDto = BackendUtil.SendAndGetResponseAsync<RetrieveAADTokenContentResponseDto>(new Uri("https://xz-home.asuscomm.cn:61550/validation/retrieveAADToken"), HttpMethod.Get, CancelToken: Cancellation.Token).Result;
 
                                 if (ResponseContentDto.ExpiresOn > DateTimeOffset.Now)
                                 {
@@ -866,7 +866,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RedeemCodeFromBackend:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(BackendUtil.SendAndGetResponseAsync<RedeemCodeContentResponseDto>(new Uri($"https://52.230.36.100:3304/validation/redeemCode?customerCollectionId={Uri.EscapeDataString(CommandValue["CustomerCollectionId"])}"), HttpMethod.Get, CancelToken: Cancellation.Token).Result, JsonSourceGenerationContext.Default.RedeemCodeContentResponseDto));
+                                Value.Add("Success", JsonSerializer.Serialize(BackendUtil.SendAndGetResponseAsync<RedeemCodeContentResponseDto>(new Uri($"https://xz-home.asuscomm.cn:61550/validation/redeemCode?customerCollectionId={Uri.EscapeDataString(CommandValue["CustomerCollectionId"])}"), HttpMethod.Get, CancelToken: Cancellation.Token).Result, JsonSourceGenerationContext.Default.RedeemCodeContentResponseDto));
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort:
