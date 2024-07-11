@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             Response.StatusCode = 404;
-                            Response.StatusDescription = "Bad Request";
+                            Response.StatusDescription = "Not Found";
                             Response.ContentType = "text/html;charset=utf-8";
                             Response.ContentEncoding = new UTF8Encoding(false);
 
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    Writer.Write($"<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">{Globalization.GetString("WIFIShare_Error_Web_Content")}</p></body></html>");
+                                    Writer.Write($"<html><head><title>Error 404 Not Found</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">{Globalization.GetString("WIFIShare_Error_Web_Content")}</p></body></html>");
                                 }
                                 finally
                                 {

@@ -3761,4 +3761,7 @@
   <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
     <value>无法兑换激活码</value>
   </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>无法启动WiFi共享: </value>
+  </data>
 </root>

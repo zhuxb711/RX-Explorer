@@ -557,13 +557,13 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<short> GetAvailableNetworkPortAsync()
+        public async Task<int> GetAvailableNetworkPortAsync()
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort);
 
             if (Response.TryGetValue("Success", out string RawText))
             {
-                return Convert.ToInt16(RawText);
+                return Convert.ToInt32(RawText);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {

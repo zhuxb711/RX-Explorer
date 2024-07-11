@@ -3868,4 +3868,7 @@ Invalid names include
   <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
     <value>Unable to redeem activation code</value>
   </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>Unable to start WiFi sharing: </value>
+  </data>
 </root>

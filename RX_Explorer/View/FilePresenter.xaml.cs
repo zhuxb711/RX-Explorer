@@ -4654,7 +4654,7 @@ namespace RX_Explorer.View
                     await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
+                        Content = $"{Globalization.GetString("QueueDialog_WiFiError_Content")} {ex.Message}",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     }.ShowAsync();
                 }

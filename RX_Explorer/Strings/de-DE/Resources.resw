@@ -3763,4 +3763,7 @@ Inkorrekte Namen sind
   <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
     <value>Aktivierungscode kann nicht eingelöst werden</value>
   </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>WiFi-Freigabe kann nicht gestartet werden: </value>
+  </data>
 </root>

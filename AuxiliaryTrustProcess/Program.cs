@@ -13,7 +13,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
@@ -851,7 +850,7 @@ namespace AuxiliaryTrustProcess
                     {
                         case AuxiliaryTrustProcessCommandType.RetrieveAADTokenFromBackend:
                             {
-                                RetrieveAADTokenContentResponseDto ResponseContentDto = BackendUtil.SendAndGetResponseAsync<RetrieveAADTokenContentResponseDto>(new Uri("https://xz-home.asuscomm.cn:61550/validation/retrieveAADToken"), HttpMethod.Get, CancelToken: Cancellation.Token).Result;
+                                RetrieveAADTokenContentResponseDto ResponseContentDto = BackendUtil.SendAndGetResponseAsync<RetrieveAADTokenContentResponseDto>(new Uri("https://xz-home.asuscomm.cn:61550/api/v1/validation/retrieveAADToken"), HttpMethod.Get, CancelToken: Cancellation.Token).Result;
 
                                 if (ResponseContentDto.ExpiresOn > DateTimeOffset.Now)
                                 {
@@ -866,53 +865,34 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RedeemCodeFromBackend:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(BackendUtil.SendAndGetResponseAsync<RedeemCodeContentResponseDto>(new Uri($"https://xz-home.asuscomm.cn:61550/validation/redeemCode?customerCollectionId={Uri.EscapeDataString(CommandValue["CustomerCollectionId"])}"), HttpMethod.Get, CancelToken: Cancellation.Token).Result, JsonSourceGenerationContext.Default.RedeemCodeContentResponseDto));
+                                Value.Add("Success", JsonSerializer.Serialize(BackendUtil.SendAndGetResponseAsync<RedeemCodeContentResponseDto>(new Uri($"https://xz-home.asuscomm.cn:61550/api/v1/validation/redeemCode?customerCollectionId={Uri.EscapeDataString(CommandValue["CustomerCollectionId"])}"), HttpMethod.Get, CancelToken: Cancellation.Token).Result, JsonSourceGenerationContext.Default.RedeemCodeContentResponseDto));
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort:
                             {
-                                int Retry = 0;
-                                int RandomPort = 0;
-                                IPGlobalProperties IPProperties = IPGlobalProperties.GetIPGlobalProperties();
-
-                                IPEndPoint[] Listener = IPProperties.GetActiveTcpListeners();
-                                TcpConnectionInformation[] Connection = IPProperties.GetActiveTcpConnections();
-
                                 HashSet<int> TriedPorts = new HashSet<int>();
                                 Random Rand = new Random(Guid.NewGuid().GetHashCode());
 
-                                while (Retry < 200)
+                                for (int Retry = 0; Retry < 100; Retry++)
                                 {
-                                    while (true)
-                                    {
-                                        RandomPort = Rand.Next(1000, 30000);
+                                    int RandomPort = Rand.Next(60000, 65535);
 
-                                        if (!TriedPorts.Contains(RandomPort))
+                                    if (TriedPorts.Add(RandomPort))
+                                    {
+                                        IPGlobalProperties IPProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+                                        if (!IPProperties.GetActiveTcpConnections()
+                                                         .Select((Connection) => Connection.LocalEndPoint.Port)
+                                                         .Concat(IPProperties.GetActiveTcpListeners().Select((EndPoint) => EndPoint.Port))
+                                                         .Contains(RandomPort))
                                         {
-                                            TriedPorts.Add(RandomPort);
+                                            Value.Add("Success", Convert.ToString(RandomPort));
                                             break;
                                         }
                                     }
-
-
-                                    if (Connection.Select((Connection) => Connection.LocalEndPoint.Port)
-                                                  .Concat(Listener.Select((EndPoint) => EndPoint.Port))
-                                                  .Distinct()
-                                                  .All((CurrentPort) => CurrentPort != RandomPort))
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Retry++;
-                                    }
                                 }
 
-                                if (Retry < 200)
-                                {
-                                    Value.Add("Success", Convert.ToString(RandomPort));
-                                }
-                                else
+                                if (!Value.ContainsKey("Success"))
                                 {
                                     Value.Add("Error", "Could not get the available port after max retry times");
                                 }

@@ -4999,6 +4999,10 @@ Inkorrekte Namen sind
           <source>Unable to redeem activation code</source>
           <target state="translated">Aktivierungscode kann nicht eingelöst werden</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to start WiFi sharing: </source>
+          <target state="translated">WiFi-Freigabe kann nicht gestartet werden: </target>
+        </trans-unit>
       </group>
     </body>
   </file>

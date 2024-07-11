@@ -3763,4 +3763,7 @@ Las denominaciones no válidas son:
   <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
     <value>No se puede canjear el código de activación</value>
   </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>No se puede iniciar el uso compartido de WiFi: </value>
+  </data>
 </root>

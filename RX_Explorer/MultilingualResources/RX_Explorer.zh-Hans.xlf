@@ -4999,6 +4999,10 @@ Invalid names include
           <source>Unable to redeem activation code</source>
           <target state="translated">无法兑换激活码</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to start WiFi sharing: </source>
+          <target state="translated">无法启动WiFi共享: </target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -4999,6 +4999,10 @@ Las denominaciones no válidas son:
           <source>Unable to redeem activation code</source>
           <target state="translated">No se puede canjear el código de activación</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to start WiFi sharing: </source>
+          <target state="translated">No se puede iniciar el uso compartido de WiFi: </target>
+        </trans-unit>
       </group>
     </body>
   </file>

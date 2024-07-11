@@ -3761,4 +3761,7 @@ Les noms non valides incluent
   <data name="GetWinAppSdk_Redeem_Error" xml:space="preserve">
     <value>Impossible d'utiliser le code d'activation</value>
   </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>Impossible de démarrer le partage WiFi:</value>
+  </data>
 </root>

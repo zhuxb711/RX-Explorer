@@ -4999,6 +4999,10 @@ Les noms non valides incluent
           <source>Unable to redeem activation code</source>
           <target state="translated">Impossible d'utiliser le code d'activation</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to start WiFi sharing: </source>
+          <target state="translated">Impossible de démarrer le partage WiFi:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

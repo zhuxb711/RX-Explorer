@@ -1,4 +1,4 @@
-﻿### Was ist neu in Ver.8.4.5
+﻿### Was ist neu in Ver.8.4.6
 
 ##### ⚠Achtung: Uwp ist veraltet, RX-Explorer wurde auf Windows App Sdk migriert
 
@@ -6,6 +6,4 @@
 
 ##### Kleinere Aktualisierungen
 
->##### Einige Komponenten von Drittanbietern wurden aktualisiert
-
->##### Optimierte Logik zum Abrufen des Aktivierungscodes für RX-Explorer (WAS)
+>##### Backend-API-Adresse aktualisiert, Backend-API-Versionskontrolle aktiviert
