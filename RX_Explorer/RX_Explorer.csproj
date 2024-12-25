@@ -2,6 +2,7 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <NoWarn>WMC1507</NoWarn>
     <LangVersion>latest</LangVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform>x64</Platform>
@@ -14,7 +15,7 @@
     <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
     <AppxDefaultResourceQualifiers>Language=en-US;fr-FR;zh-Hans;zh-Hant;es;de-DE</AppxDefaultResourceQualifiers>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>16</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -821,13 +822,10 @@
       <Version>3.0.0</Version>
     </PackageReference>
     <PackageReference Include="DocumentFormat.OpenXml">
-      <Version>3.0.2</Version>
+      <Version>3.2.0</Version>
     </PackageReference>
     <PackageReference Include="FluentFTP">
-      <Version>50.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AppCenter.Crashes">
-      <Version>5.0.5</Version>
+      <Version>52.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
       <Version>7.0.20</Version>
@@ -870,7 +868,7 @@
       <Version>1.6.0</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.37.2</Version>
+      <Version>0.38.0</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Direct2D1">
       <Version>4.2.0</Version>
@@ -879,7 +877,7 @@
       <Version>1.4.2</Version>
     </PackageReference>
     <PackageReference Include="SQLitePCLRaw.bundle_green">
-      <Version>2.1.8</Version>
+      <Version>2.1.10</Version>
     </PackageReference>
     <PackageReference Include="System.Interactive.Async">
       <Version>6.0.1</Version>
@@ -932,7 +930,7 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="WindowsDesktop, Version=10.0.22621.0">
+    <SDKReference Include="WindowsDesktop, Version=10.0.26100.0">
       <Name>Windows Desktop Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
@@ -944,11 +942,4 @@
   <Target Name="MATPrerequisite" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets')" Label="MultilingualAppToolkit">
     <Warning Text="$(MSBuildProjectFile) is Multilingual build enabled, but the Multilingual App Toolkit is unavailable during the build. If building with Visual Studio, please check to ensure that toolkit is properly installed." />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

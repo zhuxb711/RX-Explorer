@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -11,8 +11,10 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<TieredPGO>true</TieredPGO>
 		<SelfContained>true</SelfContained>
-		<TieredCompilation>true</TieredCompilation>
 		<PublishSingleFile>true</PublishSingleFile>
+		<TieredCompilation>true</TieredCompilation>
+		<TieredCompilationQuickJit>true</TieredCompilationQuickJit>
+		<TieredCompilationQuickJitForLoops>true</TieredCompilationQuickJitForLoops>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
@@ -40,7 +42,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.2" />
-		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.2" />
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.4" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4" />
 	</ItemGroup>
 </Project>

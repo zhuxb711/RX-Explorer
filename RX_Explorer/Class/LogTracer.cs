@@ -210,10 +210,6 @@ namespace RX_Explorer.Class
                                         .AppendLine("------------------------------------");
 
                 LogInternal(Builder.ToString());
-
-#if !DEBUG
-                Microsoft.AppCenter.Crashes.Crashes.TrackError(Ex, new System.Collections.Generic.Dictionary<string, string>(1) { { "AdditionalComment", string.IsNullOrWhiteSpace(AdditionalComment) ? "<Empty>" : AdditionalComment } });
-#endif
             }
             catch (Exception)
             {

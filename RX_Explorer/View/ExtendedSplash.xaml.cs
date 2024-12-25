@@ -84,26 +84,6 @@ namespace RX_Explorer.View
 
         private async Task DismissExtendedSplashAsync()
         {
-#if !DEBUG
-            try
-            {
-                Microsoft.AppCenter.AppCenter.Start("<RX-Explorer-AppCenter-Secret-Value>", typeof(Microsoft.AppCenter.Crashes.Crashes));
-
-                if (await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
-                {
-                    LogTracer.Log("AppCenter is initialized successfully and was enabled");
-                }
-                else
-                {
-                    LogTracer.Log("AppCenter is initialized successfully and was disabled");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not start the app center component");
-            }
-#endif
-
             try
             {
                 await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>

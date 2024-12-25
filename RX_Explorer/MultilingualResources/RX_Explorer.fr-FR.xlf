@@ -4466,22 +4466,6 @@ Les noms non valides incluent
           <source>Load WSL folder at startup</source>
           <target state="translated">Charger le dossier WSL au démarrage</target>
         </trans-unit>
-        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
-          <source>Disabled</source>
-          <target state="translated">Désactivé</target>
-        </trans-unit>
-        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
-          <source>Enabled</source>
-          <target state="translated">Autorisé</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
-          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
-          <target state="translated">L'activation de cette option partagera automatiquement les données pour analyser et améliorer l'application. Le contenu partagé comprend des journaux liés aux principales exceptions et plantages. Les données peuvent contenir des informations connexes telles que des chemins ou des noms de fichiers. Si ces informations sont très sensibles et importantes pour vous, vous pouvez utiliser cette option pour fermer en toute sécurité le partage de données</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
-          <source>Share data to improve this application</source>
-          <target state="translated">Partager des données pour améliorer cette application</target>
-        </trans-unit>
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">Tâche de copie à distance</target>

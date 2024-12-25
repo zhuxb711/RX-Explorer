@@ -4466,22 +4466,6 @@ Las denominaciones no válidas son:
           <source>Load WSL folder at startup</source>
           <target state="translated">Cargue la carpeta WSL al inicio</target>
         </trans-unit>
-        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
-          <source>Disabled</source>
-          <target state="translated">Discapacitado</target>
-        </trans-unit>
-        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
-          <source>Enabled</source>
-          <target state="translated">Activado</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
-          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
-          <target state="translated">Habilitar esta opción compartirá datos automáticamente para analizar y mejorar la aplicación. El contenido compartido incluye registros relacionados con excepciones clave y bloqueos. Los datos pueden contener información relacionada, como rutas o nombres de archivos. Si esta información es muy confidencial e importante para usted, puede usar esta opción para cerrar el intercambio de datos de manera segura.</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
-          <source>Share data to improve this application</source>
-          <target state="translated">Comparte datos para mejorar esta aplicación</target>
-        </trans-unit>
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">Tarea de copia remota</target>

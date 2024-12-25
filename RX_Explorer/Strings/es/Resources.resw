@@ -3363,18 +3363,6 @@ Las denominaciones no válidas son:
   <data name="LoadWSLOnStartupLabel.Text" xml:space="preserve">
     <value>Cargue la carpeta WSL al inicio</value>
   </data>
-  <data name="SettingShareData.OffContent" xml:space="preserve">
-    <value>Discapacitado</value>
-  </data>
-  <data name="SettingShareData.OnContent" xml:space="preserve">
-    <value>Activado</value>
-  </data>
-  <data name="SettingShareDataDescription.Text" xml:space="preserve">
-    <value>Habilitar esta opción compartirá datos automáticamente para analizar y mejorar la aplicación. El contenido compartido incluye registros relacionados con excepciones clave y bloqueos. Los datos pueden contener información relacionada, como rutas o nombres de archivos. Si esta información es muy confidencial e importante para usted, puede usar esta opción para cerrar el intercambio de datos de manera segura.</value>
-  </data>
-  <data name="SettingShareDataLabel.Text" xml:space="preserve">
-    <value>Comparte datos para mejorar esta aplicación</value>
-  </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>Tarea de copia remota</value>
   </data>

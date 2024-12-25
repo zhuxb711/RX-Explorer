@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>net9.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -10,9 +10,11 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<TieredPGO>true</TieredPGO>
 		<SelfContained>true</SelfContained>
-		<TieredCompilation>true</TieredCompilation>
 		<PublishSingleFile>true</PublishSingleFile>
 		<PublishReadyToRun>true</PublishReadyToRun>
+		<TieredCompilation>true</TieredCompilation>
+		<TieredCompilationQuickJit>true</TieredCompilationQuickJit>
+		<TieredCompilationQuickJitForLoops>true</TieredCompilationQuickJitForLoops>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -21,10 +23,10 @@
 		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.2" />
-		<PackageReference Include="Vanara.PInvoke.UserEnv" Version="4.0.2" />
-		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.2" />
-		<PackageReference Include="Vanara.PInvoke.Ole" Version="4.0.2" />
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.4" />
+		<PackageReference Include="Vanara.PInvoke.UserEnv" Version="4.0.4" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4" />
+		<PackageReference Include="Vanara.PInvoke.Ole" Version="4.0.4" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />

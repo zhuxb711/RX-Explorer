@@ -4466,22 +4466,6 @@ Invalid names include
           <source>Load WSL folder at startup</source>
           <target state="translated">启动时加载WSL文件夹</target>
         </trans-unit>
-        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
-          <source>Disabled</source>
-          <target state="translated">禁用</target>
-        </trans-unit>
-        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
-          <source>Enabled</source>
-          <target state="translated">启用</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
-          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
-          <target state="translated">启用此选项后将自动共享数据以分析并改进本应用程序。共享的内容包括关键异常和崩溃相关的日志，数据中可能包含路径或文件名称等相关信息，若这些信息对您非常敏感和重要，则可以使用此选项安全的关闭数据共享</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
-          <source>Share data to improve this application</source>
-          <target state="translated">共享数据以改进本应用</target>
-        </trans-unit>
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">远程复制任务</target>

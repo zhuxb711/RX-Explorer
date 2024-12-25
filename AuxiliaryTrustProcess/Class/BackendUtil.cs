@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,10 +16,7 @@ namespace AuxiliaryTrustProcess.Class
                 ConnectTimeout = TimeSpan.FromSeconds(60),
                 SslOptions = new SslClientAuthenticationOptions
                 {
-                    TargetHost = "xz-home.asuscomm.cn",
-                    EncryptionPolicy = EncryptionPolicy.RequireEncryption,
-                    EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    CertificateRevocationCheckMode = X509RevocationMode.Online,
+                    TargetHost = "xz-home.brasilia.me"
                 }
             };
 

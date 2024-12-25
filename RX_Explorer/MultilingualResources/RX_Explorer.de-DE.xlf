@@ -4466,22 +4466,6 @@ Inkorrekte Namen sind
           <source>Load WSL folder at startup</source>
           <target state="translated">WSL-Ordner beim Start laden</target>
         </trans-unit>
-        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
-          <source>Disabled</source>
-          <target state="translated">Deaktiviert</target>
-        </trans-unit>
-        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
-          <source>Enabled</source>
-          <target state="translated">Aktiviert</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
-          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
-          <target state="translated">Wenn Sie diese Option aktivieren, werden automatisch Daten geteilt, um die App zu analysieren und zu verbessern. Der freigegebene Inhalt enthält Protokolle zu wichtigen Ausnahmen und Abstürzen. Die Daten können zugehörige Informationen wie Pfade oder Dateinamen enthalten. Wenn diese Informationen sehr sensibel und wichtig für Sie sind, können Sie diese Option verwenden, um die Datenfreigabe sicher zu beenden</target>
-        </trans-unit>
-        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
-          <source>Share data to improve this application</source>
-          <target state="translated">Teilen Sie Daten, um diese Anwendung zu verbessern</target>
-        </trans-unit>
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">Remote-Kopieraufgabe</target>

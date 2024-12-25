@@ -1689,12 +1689,6 @@ namespace RX_Explorer.View
                     _ => throw new NotSupportedException()
                 };
 
-#if DEBUG
-                SettingShareData.IsOn = false;
-#else
-                SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
-#endif
-
                 UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
                 {
                     BackgroundBrushType.DefaultAcrylic => 0,
@@ -4249,15 +4243,6 @@ namespace RX_Explorer.View
         {
             IsLoadWSLFolderOnStartupEnabled = LoadWSLOnStartup.IsOn;
             ApplicationData.Current.SignalDataChanged();
-        }
-
-        private async void SettingShareData_Toggled(object sender, RoutedEventArgs e)
-        {
-#if DEBUG
-            await Task.CompletedTask;
-#else
-            await Microsoft.AppCenter.AppCenter.SetEnabledAsync(SettingShareData.IsOn);
-#endif
         }
 
         private void PredefineLabelBox1_LostFocus(object sender, RoutedEventArgs e)

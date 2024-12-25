@@ -2897,39 +2897,6 @@
                                                           Toggled="SearchHistory_Toggled" />
                                         </RelativePanel>
                                     </Border>
-
-                                    <Border Padding="20,10"
-                                            MinHeight="60"
-                                            Margin="0,5,0,0"
-                                            BorderThickness="1"
-                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
-                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                        <RelativePanel>
-                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                        RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="SettingShareData"
-                                                        Margin="0,0,20,0">
-                                                <TextBlock Text="共享数据以改进本应用"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           x:Uid="SettingShareDataLabel" />
-                                                <TextBlock FontSize="12"
-                                                           TextWrapping="WrapWholeWords"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Foreground="Gray"
-                                                           x:Uid="SettingShareDataDescription"
-                                                           Text="启用此选项后将自动共享数据以分析并改进本应用程序。共享的内容包括关键异常和崩溃相关的日志，数据中可能包含路径或文件名称等相关信息，若这些信息对您非常敏感和重要，则可以使用此选项安全的关闭数据共享" />
-                                            </StackPanel>
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="禁用"
-                                                          x:Uid="SettingShareData"
-                                                          Name="SettingShareData"
-                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
-                                                          RelativePanel.AlignRightWithPanel="True"
-                                                          RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                          Toggled="SettingShareData_Toggled" />
-                                        </RelativePanel>
-                                    </Border>
                                 </StackPanel>
                             </ScrollViewer>
                         </control:Case>

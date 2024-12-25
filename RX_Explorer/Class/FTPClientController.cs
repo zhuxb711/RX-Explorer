@@ -203,19 +203,22 @@ namespace RX_Explorer.Class
             this.Password = Password;
             this.UseEncryption = UseEncryption;
 
-            Client = new AsyncFtpClient(Host, UserName, Password, Port, new FtpConfig
+            FtpConfig Config = new FtpConfig
             {
-                TimeConversion = FtpDate.LocalTime,
-                TimeZone = TimeZoneInfo.Utc.BaseUtcOffset.Hours,
-                LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
-                EncryptionMode = UseEncryption ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None,
-                SslProtocols = UseEncryption ? SslProtocols.Tls12 : SslProtocols.None,
-                SocketKeepAlive = true,
-                ValidateAnyCertificate = true,
                 RetryAttempts = 3,
                 ReadTimeout = 30000,
-                ConnectTimeout = 30000
-            })
+                ConnectTimeout = 30000,
+                SocketKeepAlive = true,
+                ValidateAnyCertificate = true,
+                TimeConversion = FtpDate.LocalTime
+            };
+
+            if (UseEncryption)
+            {
+                Config.EncryptionMode = FtpEncryptionMode.Auto;
+            }
+
+            Client = new AsyncFtpClient(Host, UserName, Password, Port, Config)
             {
                 Encoding = Encoding.UTF8,
             };
