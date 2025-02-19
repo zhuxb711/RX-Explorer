@@ -2729,6 +2729,7 @@ namespace RX_Explorer.View
                                 break;
                             }
                         case VirtualKey.V when CtrlDown:
+                        case VirtualKey.Insert when ShiftDown: // 添加shift+insert粘贴
                             {
                                 args.Handled = true;
 
@@ -2759,6 +2760,7 @@ namespace RX_Explorer.View
                                 break;
                             }
                         case VirtualKey.C when CtrlDown && SelectedItems.Any():
+                        case VirtualKey.Insert when CtrlDown && SelectedItems.Any(): // 添加 ctrl+insert 复制
                             {
                                 args.Handled = true;
 
