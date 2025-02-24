@@ -4,15 +4,16 @@ F2|Tout fichier ou dossier sélectionné|Renommer
 F5|Aucun|Actualiser
 Enter|Sélectionner un seul fichier ou dossier|Utiliser le programme associé pour ouvrir le fichier ou entrer dans le dossier
 Back|Aucun|Naviguer vers le dossier précédent
-Space|Quicklook est en cours d'exécution et un fichier ou un dossier a été sélectionné|Utilisez Quicklook pour afficher les informations associées
+Space|QuickLook est en cours d'exécution et un fichier ou un dossier a été sélectionné|Utilisez QuickLook pour afficher les informations associées
 Esc|Aucun|Fermer la fenêtre de prévisualisation ou quitter la visionneuse intégrée
-Delete|Sélectionner n'importe quel fichier ou dossier|Supprimer le fichier
+Delete|Sélectionner n'importe quel fichier ou dossier|Suppression de fichiers ou de dossiers
 Ctrl + L|Aucun|Activer la barre d'adresse
 Ctrl + V|Aucun|Coller
 Ctrl + A|Aucun|Sélectionner tous les fichiers et dossiers
-Ctrl + C|Sélectionner n'importe quel fichier ou dossier|Copier le fichier
-Ctrl + X|Sélectionner n'importe quel fichier ou dossier|Couper le fichier
-Ctrl + D|Sélectionnez n'importe quel fichier ou dossier | Supprimer le fichier
+Ctrl + C|Sélectionner n'importe quel fichier ou dossier|Copier des fichiers ou des dossiers
+Ctrl + Insert|Sélectionner n'importe quel fichier ou dossier|Copier des fichiers ou des dossiers
+Ctrl + X|Sélectionner n'importe quel fichier ou dossier|Déplacement de fichiers ou de dossiers
+Ctrl + D|Sélectionnez n'importe quel fichier ou dossier|Suppression de fichiers ou de dossiers
 Ctrl + F|Aucun|Activer le champ de recherche
 Ctrl + Z|L'enregistrement correspondant existe|Annuler l'opération précédente
 Ctrl + T|Désélectionner ou sélectionner uniquement un dossier|Ouvrir le dossier spécifié dans un nouvel onglet. Si aucun dossier n'est sélectionné, seule une nouvelle page à onglet sera créée
@@ -29,6 +30,7 @@ Ctrl + PageUp|Aucun|Passer à l'onglet à gauche
 Ctrl + PageDown|Aucun|Passer à l'onglet à droite
 Shift + E|Aucun|Utiliser l'explorateur Windows pour ouvrir le dossier actuel
 Shift + T|Aucun|Démarrer le terminal correspondant selon la configuration dans les paramètres
+Shift + Insert|Aucun|Coller
 Alt + Left|Aucun|Naviguer vers le dossier précédent
 Alt + Right|Aucun|Naviguer vers le dossier suivant
 Alt + Enter|Sélectionner un seul fichier ou dossier|Lancer la fenêtre des propriétés

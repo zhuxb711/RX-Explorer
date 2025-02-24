@@ -4,15 +4,16 @@ F2|Any file or folder selected|Rename
 F5|None|Refresh
 Enter|Select only one file or folder|Use the associated program to open the file or enter the folder
 Back|None|Navigate to the previous folder
-Space|Quicklook is running and any file or folder has been selected|Use Quicklook to view related information
+Space|QuickLook is running and any file or folder has been selected|Use QuickLook to view related information
 Esc|None|Close the previewer window or exit the built-in viewer
-Delete|Select any file or folder|Supprimer un fichier ou un dossier
+Delete|Select any file or folder|Deleting files or folders
 Ctrl + L|None|Activate the address bar
 Ctrl + V|None|Paste
 Ctrl + A|None|Select all files and folders
-Ctrl + C|Select any file or folder|Copier un fichier ou un dossier
-Ctrl + X|Select any file or folder|Déplacer un fichier ou un dossier
-Ctrl + D|Select any file or folder|Supprimer un fichier ou un dossier
+Ctrl + C|Select any file or folder|Copying files or folders
+Ctrl + Insert|Select any file or folder|Copying files or folders
+Ctrl + X|Select any file or folder|Moving files or folders
+Ctrl + D|Select any file or folder|Deleting files or folders
 Ctrl + F|None|Activate the search box
 Ctrl + Z|The corresponding record exists|Undo the previous operation
 Ctrl + T|Unselect or only select a folder|Open the specified folder in a new tab. If no folder is selected, only a new tab page will be created
@@ -29,6 +30,7 @@ Ctrl + PageUp|None|Switch to the tab on the left
 Ctrl + PageDown|None|Switch to the tab on the right
 Shift + E|None|Use the Windows Explorer to open the current folder
 Shift + T|None|Start the corresponding terminal according to the configuration in the settings
+Shift + Insert|None|Paste
 Alt + Left|None|Navigate to the previous folder
 Alt + Right|None|Navigate to the next folder
 Alt + Enter|Select only one file or folder|Launch the properties window

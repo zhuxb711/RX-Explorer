@@ -1,16 +1,17 @@
 ﻿Tecla de acceso directo|Requisitos previos|Descripción
 ---|---|---
-F2|Cualquier archivo o carpeta seleccionado | Cambiar nombre
+F2|Cualquier archivo o carpeta seleccionado|Cambiar nombre
 F5|Ninguno|Actualizar
 Enter|Seleccionar solo un archivo o carpeta|Usar el programa asociado para abrir el archivo o entrar en la carpeta
 Back|Ninguno|Navegar a la carpeta anterior
-Space|Quicklook se está ejecutando y se ha seleccionado cualquier archivo o carpeta|Use Quicklook para ver información relacionada
+Space|QuickLook se está ejecutando y se ha seleccionado cualquier archivo o carpeta|Use QuickLook para ver información relacionada
 Esc|Ninguno|Cerrar la ventana de vista previa o salir del visor incorporado
 Delete|Seleccione cualquier archivo o carpeta|Eliminar archivo o carpeta
 Ctrl + L|Ninguno|Activar la barra de direcciones
 Ctrl + V|Ninguno|Pegar
 Ctrl + A|Ninguno|Seleccionar todos los archivos y carpetas
 Ctrl + C|Seleccionar cualquier archivo o carpeta|Copiar archivo o carpeta
+Ctrl + Insert|Seleccionar cualquier archivo o carpeta|Copiar archivo o carpeta
 Ctrl + X|Seleccionar cualquier archivo o carpeta|Mover archivo o carpeta
 Ctrl + D|Seleccionar cualquier archivo o carpeta|Eliminar archivo o carpeta
 Ctrl + F|Ninguno|Activar el cuadro de búsqueda
@@ -29,6 +30,7 @@ Ctrl + PageUp|Ninguno|Cambiar a la pestaña de la izquierda
 Ctrl + PageDown|Ninguno|Cambiar a la pestaña de la derecha
 Shift + E|Ninguno|Use el Explorador de Windows para abrir la carpeta actual
 Shift + T|Ninguno|Inicie el terminal correspondiente de acuerdo con la configuración en la configuración
+Shift + Insert|Ninguno|Pegar
 Alt + Izquierda|Ninguno|Navegar a la carpeta anterior
 Alt + Derecha|Ninguno|Navegar a la siguiente carpeta
 Alt + Enter|Seleccionar solo un archivo o carpeta|Iniciar la ventana de propiedades
