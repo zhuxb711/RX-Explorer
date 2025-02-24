@@ -29,7 +29,6 @@ namespace RX_Explorer.Class
     public sealed class AuxiliaryTrustProcessController : IDisposable
     {
         private bool IsDisposed;
-        private const int PipeConnectionTimeout = 10000;
         private int CurrentControllerExecutingCommandNum;
 
         private SafeProcessHandle AuxiliaryTrustProcessHandle;
@@ -40,8 +39,6 @@ namespace RX_Explorer.Class
         private NamedPipeWriteController PipeCancellationWriteController;
         private NamedPipeAuxiliaryCommunicationBaseController PipeCommunicationBaseController;
         private readonly ConcurrentQueue<InternalCommandQueueItem> CommandQueue = new ConcurrentQueue<InternalCommandQueueItem>();
-
-        private static int ExpectedControllerNum;
 
         private static readonly SynchronizedCollection<AuxiliaryTrustProcessController> AllControllerCollection = new SynchronizedCollection<AuxiliaryTrustProcessController>();
         private static readonly BlockingCollection<AuxiliaryTrustProcessController> AvailableControllerCollection = new BlockingCollection<AuxiliaryTrustProcessController>();
@@ -91,7 +88,7 @@ namespace RX_Explorer.Class
                     int WaitCount = 0;
 
                 REWAIT:
-                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
+                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(15)))
                     using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token, Item.CancelToken))
                     {
                         try
@@ -190,8 +187,6 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    ExpectedControllerNum = ExpectedNum;
-
                     if (ExpectedNum > AllControllersNum - DynamicBackupProcessNum)
                     {
                         int AddCount = ExpectedNum - AllControllersNum + DynamicBackupProcessNum;
@@ -319,7 +314,7 @@ namespace RX_Explorer.Class
                 PipeCommunicationBaseController?.Dispose();
                 PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController();
 
-                if (await PipeCommunicationBaseController.WaitForConnectionAsync(PipeConnectionTimeout))
+                if (await PipeCommunicationBaseController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)))
                 {
                     for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {
@@ -355,10 +350,10 @@ namespace RX_Explorer.Class
 
                         PipeCommunicationBaseController.SendData(JsonConvert.SerializeObject(Command));
 
-                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(PipeConnectionTimeout),
-                                                PipeCommandReadController.WaitForConnectionAsync(PipeConnectionTimeout),
-                                                PipeProgressReadController.WaitForConnectionAsync(PipeConnectionTimeout),
-                                                PipeCancellationWriteController.WaitForConnectionAsync(PipeConnectionTimeout)))
+                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)),
+                                                PipeCommandReadController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)),
+                                                PipeProgressReadController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)),
+                                                PipeCancellationWriteController.WaitForConnectionAsync(TimeSpan.FromSeconds(15))))
                                        .All((Connected) => Connected))
                         {
                             PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;

@@ -610,7 +610,7 @@ namespace AuxiliaryTrustProcess
                     }
                     else
                     {
-                        AliveCheckTimer = new Timer(10000)
+                        AliveCheckTimer = new Timer(TimeSpan.FromSeconds(15))
                         {
                             AutoReset = true,
                             Enabled = true
@@ -620,7 +620,7 @@ namespace AuxiliaryTrustProcess
                         PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController(ExplorerPackageFamilyName);
                         PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
-                        if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
+                        if (PipeCommunicationBaseController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)).Result)
                         {
                             AliveCheckTimer.Start();
 
@@ -5028,7 +5028,7 @@ namespace AuxiliaryTrustProcess
 
                 try
                 {
-                    using (CancellationTokenSource WaitPipeConnectionCancellation = new CancellationTokenSource(10000))
+                    using (CancellationTokenSource WaitPipeConnectionCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(15)))
                     using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(CancelToken, WaitPipeConnectionCancellation.Token))
                     {
                         Task.WaitAll(new Task[] { CommunicatePipeStream.WaitForConnectionAsync(CombineCancellation.Token), ProgressPipeStream.WaitForConnectionAsync(CombineCancellation.Token) }, CombineCancellation.Token);
@@ -5077,7 +5077,7 @@ namespace AuxiliaryTrustProcess
                 {
                     CancelEvent.Set();
 
-                    if (!ElevatedProcess.WaitForExit(10000))
+                    if (!ElevatedProcess.WaitForExit(TimeSpan.FromSeconds(15)))
                     {
                         LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
                     }
@@ -5088,7 +5088,7 @@ namespace AuxiliaryTrustProcess
                 {
                     CancelEvent.Set();
 
-                    if (!ElevatedProcess.WaitForExit(10000))
+                    if (!ElevatedProcess.WaitForExit(TimeSpan.FromSeconds(15)))
                     {
                         LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
                     }

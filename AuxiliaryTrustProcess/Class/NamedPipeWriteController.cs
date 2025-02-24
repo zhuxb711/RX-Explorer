@@ -34,7 +34,7 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     try
                     {
-                        PipeStream.Connect(10000);
+                        PipeStream.Connect(TimeSpan.FromSeconds(15));
                         PipeStream.ReadMode = PipeTransmissionMode.Message;
                     }
                     catch (IOException)
@@ -86,16 +86,14 @@ namespace AuxiliaryTrustProcess.Class
             }
         }
 
-        public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
+        public override async Task<bool> WaitForConnectionAsync(TimeSpan Timeout)
         {
-            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
+            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(Timeout)) == ConnectionSet.Task)
             {
                 return ConnectionSet.Task.Result;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public NamedPipeWriteController(string PackageFamilyName, string PipeId) : base(PackageFamilyName, PipeId)

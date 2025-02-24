@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
 
         protected NamedPipeServerStream PipeStream { get; }
 
-        public abstract Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds);
+        public abstract Task<bool> WaitForConnectionAsync(TimeSpan Timeout);
 
         protected NamedPipeControllerBase(string Id)
         {

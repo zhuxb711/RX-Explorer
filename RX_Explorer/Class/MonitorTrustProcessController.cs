@@ -13,7 +13,6 @@ namespace RX_Explorer.Class
 {
     public static class MonitorTrustProcessController
     {
-        private const int PipeConnectionTimeout = 10000;
         private static NamedPipeReadController PipeCommandReadController;
         private static NamedPipeWriteController PipeCommandWriteController;
         private static NamedPipeMonitorCommunicationBaseController PipeCommunicationBaseController;
@@ -183,7 +182,7 @@ namespace RX_Explorer.Class
                 PipeCommunicationBaseController?.Dispose();
                 PipeCommunicationBaseController = new NamedPipeMonitorCommunicationBaseController();
 
-                if (await PipeCommunicationBaseController.WaitForConnectionAsync(PipeConnectionTimeout))
+                if (await PipeCommunicationBaseController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)))
                 {
                     for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {
@@ -208,8 +207,8 @@ namespace RX_Explorer.Class
 
                         PipeCommunicationBaseController.SendData(JsonConvert.SerializeObject(Command));
 
-                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(PipeConnectionTimeout),
-                                                PipeCommandReadController.WaitForConnectionAsync(PipeConnectionTimeout)))
+                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(TimeSpan.FromSeconds(15)),
+                                                PipeCommandReadController.WaitForConnectionAsync(TimeSpan.FromSeconds(15))))
                                        .All((Connected) => Connected))
                         {
                             PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;

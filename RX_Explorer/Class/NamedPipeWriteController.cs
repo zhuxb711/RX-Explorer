@@ -105,23 +105,19 @@ namespace RX_Explorer.Class
             base.Dispose();
         }
 
-        public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
+        public override async Task<bool> WaitForConnectionAsync(TimeSpan Timeout)
         {
             if (ConnectionSet.Task.IsCompleted)
             {
                 return true;
             }
-            else
+
+            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(Timeout)) == ConnectionSet.Task)
             {
-                if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
-                {
-                    return ConnectionSet.Task.Result;
-                }
-                else
-                {
-                    Cancellation?.Cancel();
-                }
+                return ConnectionSet.Task.Result;
             }
+
+            Cancellation?.Cancel();
 
             return false;
         }

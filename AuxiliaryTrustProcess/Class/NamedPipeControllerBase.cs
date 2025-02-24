@@ -14,7 +14,7 @@ namespace AuxiliaryTrustProcess.Class
 
         protected NamedPipeClientStream PipeStream { get; }
 
-        public abstract Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds);
+        public abstract Task<bool> WaitForConnectionAsync(TimeSpan Timeout);
 
         protected NamedPipeControllerBase(string PackageFamilyName, string Id)
         {
