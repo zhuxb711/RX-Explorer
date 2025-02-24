@@ -1,11 +1,13 @@
-﻿### 版本8.4.7更新
+﻿### 版本8.4.8更新
 
 #### ⚠注意：Uwp 已棄用，RX-Explorer 已遷移至 Windows App Sdk
 
 >##### Windows App Sdk 是 Uwp 的替代框架。 新版本已於2023年5月1日發布([點此下載](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3))，已購買Uwp的用戶可前往“設置-版本”獲取激活碼
 
-##### 其他更新
+##### 功能更新
 
->##### 更新了後端 API 位址
+>##### 新增兩個鍵盤快捷鍵 「Ctrl + Insert」 和 「Shift + Insert」
+
+##### 其他更新
 
 >##### 更新了一些第三方元件
