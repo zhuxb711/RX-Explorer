@@ -11,6 +11,7 @@ Ctrl + L|Keine|Adressleiste aktivieren
 Ctrl + V|Keine|Einfügen
 Ctrl + A|Keine|Alle Dateien und Ordner auswählen
 Ctrl + C|Beliebige Datei oder Ordner auswählen|Datei oder Ordner kopieren
+Ctrl + Insert|Beliebige Datei oder Ordner auswählen|Datei oder Ordner kopieren
 Ctrl + X|Beliebige Datei oder Ordner auswählen|Datei oder Ordner verschieben
 Ctrl + D|Beliebige Datei oder Ordner auswählen|Datei oder Ordner löschen
 Ctrl + F|Keine|Aktiviere das Suchfeld
@@ -29,6 +30,7 @@ Ctrl + PageUp|Keine|Wechseln Sie zum Tab links
 Ctrl + PageDown|Keine|Wechseln Sie zum Reiter rechts
 Shift + E|Keine|Verwenden Sie den Windows Explorer, um den aktuellen Ordner zu öffnen
 Shift + T|Keine|Starte das entsprechende Terminal entsprechend der Konfiguration in den Einstellungen
+Shift + Insert|Keine|Einfügen
 Alt + Links|Keine|Navigiere zum vorherigen Ordner
 Alt + Rechts|Keine|Navigiere zum nächsten Ordner
 Alt + Enter|Wählen Sie nur eine Datei oder einen Ordner aus|Starten Sie das Eigenschaftenfenster

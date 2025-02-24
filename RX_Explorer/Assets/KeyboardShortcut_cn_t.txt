@@ -4,13 +4,14 @@ F2|選定的任何文件或文件夾|重命名
 F5|無|刷新
 Enter|僅選擇一個文件或文件夾|使用關聯程序打開文件或進入文件夾
 Back|無|導航到上一個文件夾
-Space|Quicklook正在運行並且已選擇任何文件或文件夾|使用 Quicklook 查看相關信息
+Space|QuickLook正在運行並且已選擇任何文件或文件夾|使用QuickLook查看相關信息
 Esc|None|關閉預覽窗口或退出內置查看器
 Delete|選擇任意文件或文件夾|刪除文件或文件夾
 Ctrl + L|無|激活地址欄
 Ctrl + V|無|粘貼
 Ctrl + A|無|選擇所有文件和文件夾
 Ctrl + C|選擇任意文件或文件夾|複製文件或文件夾
+Ctrl + Insert|選擇任意文件或文件夾|複製文件或文件夾
 Ctrl + X|選擇任意文件或文件夾|移動文件或文件夾
 Ctrl + D|選擇任意文件或文件夾|刪除文件或文件夾
 Ctrl + F|無|激活搜索框
@@ -29,6 +30,7 @@ Ctrl + PageUp|無|切換到左邊的選項卡
 Ctrl + PageDown|無|切換到右側的選項卡
 Shift + E|無|使用 Windows 資源管理器打開當前文件夾
 Shift + T|None|根據設置裡的配置啟動對應的終端
+Shift + Insert|無|粘貼
 Alt + Left|無|導航到上一個文件夾
 Alt + Right|無|導航到下一個文件夾
 Alt + Enter|僅選擇一個文件或文件夾|啟動屬性窗口
