@@ -84,16 +84,9 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     if (UserEnv.DeriveAppContainerSidFromAppContainerName(AppContainerName, out AdvApi32.SafeAllocatedSID Sid).Succeeded)
                     {
-                        try
+                        using (Sid)
                         {
-                            if (!Sid.IsInvalid)
-                            {
-                                return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
-                            }
-                        }
-                        finally
-                        {
-                            Sid.Dispose();
+                            return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(["-"], StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
                         }
                     }
                 }
