@@ -23,10 +23,10 @@
 		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.4" />
-		<PackageReference Include="Vanara.PInvoke.UserEnv" Version="4.0.4" />
-		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4" />
-		<PackageReference Include="Vanara.PInvoke.Ole" Version="4.0.4" />
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.6" />
+		<PackageReference Include="Vanara.PInvoke.UserEnv" Version="4.0.6" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.6" />
+		<PackageReference Include="Vanara.PInvoke.Ole" Version="4.0.6" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
