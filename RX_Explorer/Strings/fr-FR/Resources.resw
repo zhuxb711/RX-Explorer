@@ -1176,7 +1176,7 @@
     <value>Serveur DNS secondaire</value>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Épinglez le RX-Explorateur pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</value>
+    <value>Épinglez le RX-Explorer (UWP) pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1186,10 +1186,10 @@
     <value>Plus tard</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX-Explorer est minimisé</value>
+    <value>RX-Explorer (UWP) est minimisé</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX-Explorer essaiera de continuer l'exécution jusqu'à ce qu'il soit terminé par la politique Windows</value>
+    <value>RX-Explorer (UWP) essaiera de continuer l'exécution jusqu'à ce qu'il soit terminé par la politique Windows</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>format</value>
@@ -3029,7 +3029,7 @@ Les noms non valides incluent
     <value>Ne pouvait pas être vide ici</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>Cette action réinitialisera le RX-Explorer, notamment :</value>
+    <value>Cette action réinitialisera le RX-Explorer (UWP), notamment :</value>
   </data>
   <data name="NewTerminalProfileDefaultName" xml:space="preserve">
     <value>Nouveau profil de terminal</value>
@@ -3422,7 +3422,7 @@ Les noms non valides incluent
     <value>Intégration avec le menu de l'Explorateur Windows</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>L'activation de cette option ajoutera un élément de menu "Ouvrir avec RX-Explorer" à l'explorateur Windows pour lancer cette application plus rapidement</value>
+    <value>L'activation de cette option ajoutera un élément de menu "Ouvrir avec RX-Explorer (UWP)" à l'explorateur Windows pour lancer cette application plus rapidement</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>Désactivé</value>
@@ -3522,7 +3522,7 @@ Les noms non valides incluent
     <value>Impossible de redimensionner les images avec une résolution trop petite</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX-Explorer a été redémarré</value>
+    <value>RX-Explorer (UWP) a été redémarré</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>Nous avons essayé de restaurer l'état précédent !</value>
@@ -3585,7 +3585,7 @@ Les noms non valides incluent
     <value>Lien de téléchargement</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer est un outil de visualisation rapide pour la plate-forme Windows. Tout comme dans MacOS, mais Seer s'exécute plus rapidement, est plus personnalisable et prend en charge plus de formats. Pour activer cette fonctionnalité, vous devez installer Seer à l'avance et vous assurer que Seer fonctionne correctement. Vous pouvez activer Seer en sélectionnant n'importe quel fichier dans le RX-Explorer et en appuyant sur la barre d'espace</value>
+    <value>Seer est un outil de visualisation rapide pour la plate-forme Windows. Tout comme dans MacOS, mais Seer s'exécute plus rapidement, est plus personnalisable et prend en charge plus de formats. Pour activer cette fonctionnalité, vous devez installer Seer à l'avance et vous assurer que Seer fonctionne correctement. Vous pouvez activer Seer en sélectionnant n'importe quel fichier dans le RX-Explorer (UWP) et en appuyant sur la barre d'espace</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>Désactivé</value>
@@ -3741,7 +3741,7 @@ Les noms non valides incluent
     <value>Votre compte Microsoft (Courrier électronique)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>Capture d’écran de l’historique de vos commandes sur RX-Explorer dans votre compte Microsoft</value>
+    <value>Capture d’écran de l’historique de vos commandes sur RX-Explorer (UWP) dans votre compte Microsoft</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>Vous ne parvenez pas à utiliser votre code d’activation ? Cliquez pour contacter le développeur</value>
@@ -3751,5 +3751,8 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>Impossible de démarrer le partage WiFi:</value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>Ouvrir dans RX-Explorer (UWP)</value>
   </data>
 </root>

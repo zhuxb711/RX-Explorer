@@ -1192,7 +1192,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>將RX 檔案總管釘選到[開始]和工作列！\r\r★釘選到[開始] \r\r★釘選到工作列</value>
+    <value>將 RX檔案總管 (UWP) 釘選到[開始]和[工作列]！\r\r★釘選到[開始] \r\r★釘選到[工作列]</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1202,10 +1202,10 @@
     <value>稍後</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX-Explorer被最小化</value>
+    <value>RX檔案總管 (UWP) 被最小化</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX-Explorer將嘗試繼續執行，直到被Windows策略終止</value>
+    <value>RX檔案總管 (UWP) 將嘗試繼續執行，直到被Windows策略終止</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>格式</value>
@@ -3029,7 +3029,7 @@
     <value>此處不能為空</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>此操作將重置RX-Explorer，包括:</value>
+    <value>此操作將重置 RX檔案總管 (UWP)，包括:</value>
   </data>
   <data name="NewTerminalProfileDefaultName" xml:space="preserve">
     <value>新的終端配置文件</value>
@@ -3422,7 +3422,7 @@
     <value>與 Windows 資源管理器的菜單集成</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>啟用此選項將在 Windows 資源管理器中添加“使用 RX-Explorer 打開”菜單項，以更快地啟動此應用程序</value>
+    <value>啟用此選項將在 Windows 資源管理器中添加“使用 RX檔案總管 (UWP) 打開”菜單項，以更快地啟動此應用程序</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3522,7 +3522,7 @@
     <value>垂直分屏显示限制</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX档案管家已重新啟動</value>
+    <value>RX檔案總管 (UWP) 已重新啟動</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>我們已經嘗試恢復之前的狀態!</value>
@@ -3585,7 +3585,7 @@
     <value>下載鏈接</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer是一款適用於Windows平台的快速查看工具。 就像在MacOS中一樣，但Seer運行速度更快，更可定制，並且支持更多格式。 要啟用此功能，您必須提前安裝Seer，並確保Seer運行正常。 您可以通過在RX-Explorer中選擇任何文件並按空格鍵來激活Seer</value>
+    <value>Seer是一款適用於Windows平台的快速查看工具。 就像在MacOS中一樣，但Seer運行速度更快，更可定制，並且支持更多格式。 要啟用此功能，您必須提前安裝Seer，並確保Seer運行正常。 您可以通過在 RX檔案總管 (UWP) 中選擇任何文件並按空格鍵來激活Seer</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3714,7 +3714,7 @@
     <value>正在下載激活碼</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>已購買 RX-Explorer(UWP) 的用戶可以在這裡兌換 RX-Explorer(WAS) 的激活碼。 您可以在 Microsoft Store 中使用下面提供的激活碼或通過瀏覽器中的鏈接來激活 RX-Explorer(WAS) 的許可證</value>
+    <value>已購買 RX檔案總管 (UWP) 的用戶可以在這裡兌換 RX檔案總管 (WAS) 的激活碼。 您可以在 Microsoft Store 中使用下面提供的激活碼或通過瀏覽器中的鏈接來激活 RX檔案總管 (WAS) 的許可證</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>下載</value>
@@ -3741,7 +3741,7 @@
     <value>您的微軟帳戶 (电邮)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>您的 Microsoft 帳戶中有關 RX-Explorer 的訂單歷史記錄螢幕截圖</value>
+    <value>您的 Microsoft 帳戶中有關 RX檔案總管 (UWP) 的訂單歷史記錄螢幕截圖</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>無法兌換啟動碼？點擊聯繫開發者</value>
@@ -3751,5 +3751,8 @@
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>無法啟動WiFi分享: </value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>使用 RX檔案總管 (UWP) 打開</value>
   </data>
 </root>

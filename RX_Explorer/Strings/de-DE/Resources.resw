@@ -1232,7 +1232,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>RX-Explorer An Startmenü und Taskleiste anpinnen！\r\r★An Startmenü anpinnen\r\r★An Taskleiste anpinnen</value>
+    <value>RX-Explorer (UWP) An Startmenü und Taskleiste anpinnen！\r\r★An Startmenü anpinnen\r\r★An Taskleiste anpinnen</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1242,10 +1242,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Später</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX-Explorer wird minimiert</value>
+    <value>RX-Explorer (UWP) wird minimiert</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX-Explorer versucht, die Ausführung fortzusetzen, bis sie von der Windows-Richtlinie beendet wird</value>
+    <value>RX-Explorer (UWP) versucht, die Ausführung fortzusetzen, bis sie von der Windows-Richtlinie beendet wird</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>Format</value>
@@ -3031,7 +3031,7 @@ Inkorrekte Namen sind
     <value>Konnte hier nicht leer sein</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>Diese Aktion setzt den RX-Explorer zurück, einschließlich:</value>
+    <value>Diese Aktion setzt den RX-Explorer (UWP) zurück, einschließlich:</value>
   </data>
   <data name="NewTerminalProfileDefaultName" xml:space="preserve">
     <value>Neues Terminalprofil</value>
@@ -3424,7 +3424,7 @@ Inkorrekte Namen sind
     <value>Integration mit dem Menü des Windows Explorers</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>Wenn Sie diese Option aktivieren, wird dem Windows Explorer ein Menüelement „Mit RX-Explorer öffnen“ hinzugefügt, um diese Anwendung schneller zu starten</value>
+    <value>Wenn Sie diese Option aktivieren, wird dem Windows Explorer ein Menüelement „Mit RX-Explorer (UWP) öffnen“ hinzugefügt, um diese Anwendung schneller zu starten</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>Behindert</value>
@@ -3524,7 +3524,7 @@ Inkorrekte Namen sind
     <value>Bilder mit zu geringer Auflösung konnten nicht skaliert werden</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX-Explorer wurde neu gestartet</value>
+    <value>RX-Explorer (UWP) wurde neu gestartet</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>Wir haben versucht, den vorherigen Zustand wiederherzustellen!</value>
@@ -3587,7 +3587,7 @@ Inkorrekte Namen sind
     <value>Link herunterladen</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer ist ein Schnellansichtstool für die Windows-Plattform. Genau wie in MacOS, aber Seer läuft schneller, ist anpassbarer und unterstützt mehr Formate. Um diese Funktion zu aktivieren, müssen Sie Seer im Voraus installieren und sicherstellen, dass Seer ordnungsgemäß ausgeführt wird. Sie können Seer aktivieren, indem Sie eine beliebige Datei im RX-Explorer auswählen und die Leertaste drücken</value>
+    <value>Seer ist ein Schnellansichtstool für die Windows-Plattform. Genau wie in MacOS, aber Seer läuft schneller, ist anpassbarer und unterstützt mehr Formate. Um diese Funktion zu aktivieren, müssen Sie Seer im Voraus installieren und sicherstellen, dass Seer ordnungsgemäß ausgeführt wird. Sie können Seer aktivieren, indem Sie eine beliebige Datei im RX-Explorer (UWP) auswählen und die Leertaste drücken</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>Deaktiviert</value>
@@ -3743,7 +3743,7 @@ Inkorrekte Namen sind
     <value>Ihr Microsoft-Konto (E-Mail)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>Screenshot Ihres Bestellverlaufs über RX-Explorer in Ihrem Microsoft-Konto</value>
+    <value>Screenshot Ihres Bestellverlaufs über RX-Explorer (UWP) in Ihrem Microsoft-Konto</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>Sie können Ihren Aktivierungscode nicht einlösen? Klicken Sie hier, um den Entwickler zu kontaktieren</value>
@@ -3753,5 +3753,8 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>WiFi-Freigabe kann nicht gestartet werden: </value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>Öffnen Sie im RX-Explorer (UWP)</value>
   </data>
 </root>

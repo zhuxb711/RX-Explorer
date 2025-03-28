@@ -22,37 +22,31 @@ namespace RX_Explorer.Class
                 case LanguageEnum.Chinese_Simplified:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打开";
                         break;
                     }
                 case LanguageEnum.English:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer (UWP)";
                         break;
                     }
                 case LanguageEnum.French:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer (UWP)";
                         break;
                     }
                 case LanguageEnum.Chinese_Traditional:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打開";
                         break;
                     }
                 case LanguageEnum.Spanish:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 4;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer (UWP)";
                         break;
                     }
                 case LanguageEnum.German:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 5;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer (UWP)";
                         break;
                     }
             }
@@ -175,21 +169,18 @@ namespace RX_Explorer.Class
                         CurrentLanguage = LanguageEnum.Chinese_Traditional;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打開";
                     }
                     else if (PrimaryLanguage.Contains("Hans", StringComparison.OrdinalIgnoreCase))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Simplified;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器 (UWP) 打开";
                     }
                     else
                     {
                         CurrentLanguage = LanguageEnum.English;
                         ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
-                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer (UWP)";
                     }
                 }
                 else if (PrimaryLanguage.StartsWith("fr", StringComparison.OrdinalIgnoreCase))
@@ -197,20 +188,17 @@ namespace RX_Explorer.Class
                     CurrentLanguage = LanguageEnum.French;
                     ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
-                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer (UWP)";
                 }
                 else if (PrimaryLanguage.StartsWith("es", StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentLanguage = LanguageEnum.Spanish;
                     ApplicationLanguages.PrimaryLanguageOverride = "es";
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 4;
-                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer (UWP)";
                 }
                 else if (PrimaryLanguage.StartsWith("es", StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentLanguage = LanguageEnum.German;
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 5;
-                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer (UWP)";
                     ApplicationLanguages.PrimaryLanguageOverride = "de-DE";
                 }
                 else
@@ -218,7 +206,6 @@ namespace RX_Explorer.Class
                     CurrentLanguage = LanguageEnum.English;
                     ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
-                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer (UWP)";
                 }
             }
 

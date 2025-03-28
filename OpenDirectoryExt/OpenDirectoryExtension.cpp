@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
 #include "OpenDirectoryExtension.h"
 
-HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray, IBindCtx* /*pBindContext*/)
+HRESULT OpenDirectoryExtension::Invoke(IShellItemArray* psiItemArray, IBindCtx* /*pBindContext*/)
 {
     std::wstring cmdline = std::wstring(L"RX-Explorer.exe");
 
-    if (psiItemArray != nullptr) 
+    if (psiItemArray) 
     {
         DWORD count;
         psiItemArray->GetCount(&count);
@@ -48,36 +48,25 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray, IBindCtx* /*pBin
     return S_OK;
 }
 
-HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszInfoTip)
+HRESULT OpenDirectoryExtension::GetToolTip(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszInfoTip)
 {
-    winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
-    return SHStrDupW(DisplayName.c_str(), ppszInfoTip);
+    return GetLocalizedString(L"/Resources/ContextMenu_DisplayName", ppszInfoTip);
 }
 
-HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszName)
+HRESULT OpenDirectoryExtension::GetTitle(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszName)
 {
-    winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
-    return SHStrDupW(DisplayName.c_str(), ppszName);
+    return GetLocalizedString(L"/Resources/ContextMenu_DisplayName", ppszName);
 }
 
-HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray, BOOL /*fOkToBeSlow*/, EXPCMDSTATE* pCmdState)
+HRESULT OpenDirectoryExtension::GetState(IShellItemArray* psiItemArray, BOOL /*fOkToBeSlow*/, EXPCMDSTATE* pCmdState)
 {
-    // compute the visibility of the verb here, respect "fOkToBeSlow" if this is
-    // slow (does IO for example) when called with fOkToBeSlow == FALSE return
-    // E_PENDING and this object will be called back on a background thread with
-    // fOkToBeSlow == TRUE
+    *pCmdState = ECS_HIDDEN;
 
-    // We however don't need to bother with any of that, so we'll just return
-    // ECS_ENABLED.
-    if (psiItemArray == nullptr) 
-    {
-        *pCmdState = ECS_HIDDEN;
-    }
-    else
+    if (winrt::unbox_value_or<bool>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"IntegrateWithWindowsExplorerContextMenu"), true))
     {
         *pCmdState = ECS_ENABLED;
 
-        if (winrt::unbox_value_or<bool>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"IntegrateWithWindowsExplorerContextMenu"), true))
+        if (psiItemArray)
         {
             DWORD count;
             psiItemArray->GetCount(&count);
@@ -96,36 +85,52 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray, BOOL /*fOkToBe
                 }
             }
         }
-        else 
-        {
-            *pCmdState = ECS_HIDDEN;
-        }
     }
 
     return S_OK;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszIcon)
+HRESULT OpenDirectoryExtension::GetIcon(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszIcon)
 {
+	*ppszIcon = nullptr;
     winrt::hstring BasePath = winrt::Windows::ApplicationModel::Package::Current().InstalledPath();
     std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\AppLogo.png";
     return SHStrDupW(LogoPath.c_str(), ppszIcon);
 }
 
-HRESULT OpenTerminalHere::GetFlags(EXPCMDFLAGS* pFlags)
+HRESULT OpenDirectoryExtension::GetFlags(EXPCMDFLAGS* pFlags)
 {
     *pFlags = ECF_DEFAULT;
     return S_OK;
 }
 
-HRESULT OpenTerminalHere::GetCanonicalName(GUID* pguidCommandName)
+HRESULT OpenDirectoryExtension::GetCanonicalName(GUID* pguidCommandName)
 {
     *pguidCommandName = __uuidof(this);
     return S_OK;
 }
 
-HRESULT OpenTerminalHere::EnumSubCommands(IEnumExplorerCommand** ppEnum)
+HRESULT OpenDirectoryExtension::EnumSubCommands(IEnumExplorerCommand** ppEnum)
 {
     *ppEnum = nullptr;
     return E_NOTIMPL;
+}
+
+HRESULT OpenDirectoryExtension::GetLocalizedString(LPCWSTR resName, LPWSTR* ppszOutput)
+{
+    *ppszOutput = nullptr;
+
+    auto candidate = ResourceManager::Current().MainResourceMap().TryLookup(resName);
+
+    if (candidate)
+    {
+        auto resource = candidate.Resolve();
+
+        if (resource)
+        {
+            return SHStrDupW(resource.ValueAsString().data(), ppszOutput);
+        }
+    }
+
+    return E_FAIL;
 }

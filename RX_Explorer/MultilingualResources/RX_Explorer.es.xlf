@@ -1625,8 +1625,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
-          <source>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
-          <target state="translated">Anclar RX Explorer a la pantalla de inicio y a la barra de tareas. \r\r★Anclar a la pantalla de inicio\r\r★Anclar a la barra de tareas</target>
+          <source>Pin the RX-Explorer (UWP) to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
+          <target state="translated">Anclar RX Explorer (UWP) a la pantalla de inicio y a la barra de tareas. \r\r★Anclar a la pantalla de inicio\r\r★Anclar a la barra de tareas</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
@@ -1638,12 +1638,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Más tarde</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
-          <source>RX-Explorer is minimized</source>
-          <target state="translated">RX-Explorer está minimizado</target>
+          <source>RX-Explorer (UWP) is minimized</source>
+          <target state="translated">RX-Explorer (UWP) está minimizado</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
-          <source>RX-Explorer will try to continue execution until terminated by Windows policy</source>
-          <target state="translated">RX-Explorer intentará continuar con la ejecución hasta que lo cancele la política de Windows</target>
+          <source>RX-Explorer (UWP) will try to continue execution until terminated by Windows policy</source>
+          <target state="translated">RX-Explorer (UWP) intentará continuar con la ejecución hasta que lo cancele la política de Windows</target>
         </trans-unit>
         <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
           <source>format</source>
@@ -4023,8 +4023,8 @@ Las denominaciones no válidas son:
           <target state="translated">No pudo estar vacío aquí</target>
         </trans-unit>
         <trans-unit id="ResetDialogText.Text" translate="yes" xml:space="preserve">
-          <source>This action will reset the RX-Explorer, including: </source>
-          <target state="translated">Esta acción restablecerá el RX-Explorer, que incluye:</target>
+          <source>This action will reset the RX-Explorer (UWP), including: </source>
+          <target state="translated">Esta acción restablecerá el RX-Explorer (UWP), que incluye:</target>
         </trans-unit>
         <trans-unit id="NewTerminalProfileDefaultName" translate="yes" xml:space="preserve">
           <source>New Terminal Profile</source>
@@ -4547,8 +4547,8 @@ Las denominaciones no válidas son:
           <target state="translated">Integración con el menú del Explorador de Windows</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuDescription.Text" translate="yes" xml:space="preserve">
-          <source>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</source>
-          <target state="translated">Habilitar esta opción agregará un elemento de menú "Abrir con RX-Explorer" al Explorador de Windows para iniciar esta aplicación más rápido</target>
+          <source>Enabling this option will add an "Open in RX-Explorer (UWP)" menu item to the Windows Explorer to launch this application faster</source>
+          <target state="translated">Habilitar esta opción agregará un elemento de menú "Abrir con RX-Explorer (UWP)" al Explorador de Windows para iniciar esta aplicación más rápido</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4680,8 +4680,8 @@ Las denominaciones no válidas son:
           <target state="translated">No se pudo cambiar el tamaño de las imágenes con una resolución demasiado pequeña</target>
         </trans-unit>
         <trans-unit id="Toast_Restart_Common_Text_1" translate="yes" xml:space="preserve">
-          <source>RX-Explorer has been restarted</source>
-          <target state="translated">RX-Explorer se ha reiniciado</target>
+          <source>RX-Explorer (UWP) has been restarted</source>
+          <target state="translated">RX-Explorer (UWP) se ha reiniciado</target>
         </trans-unit>
         <trans-unit id="Toast_Restart_Common_Text_2" translate="yes" xml:space="preserve">
           <source>We have tried to restore the previous state!</source>
@@ -4764,8 +4764,8 @@ Las denominaciones no válidas son:
           <target state="translated">Enlace de descarga</target>
         </trans-unit>
         <trans-unit id="SettingPageSeerContent.Text" translate="yes" xml:space="preserve">
-          <source>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</source>
-          <target state="translated">Seer es una herramienta de visualización rápida para la plataforma Windows. Al igual que en MacOS, pero Seer se ejecuta más rápido, es más personalizable y admite más formatos. Para habilitar esta función, debe instalar Seer con anticipación y asegurarse de que Seer se esté ejecutando correctamente. Puede activar Seer seleccionando cualquier archivo en el RX-Explorer y presionando la barra espaciadora</target>
+          <source>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer (UWP) and pressing the space bar</source>
+          <target state="translated">Seer es una herramienta de visualización rápida para la plataforma Windows. Al igual que en MacOS, pero Seer se ejecuta más rápido, es más personalizable y admite más formatos. Para habilitar esta función, debe instalar Seer con anticipación y asegurarse de que Seer se esté ejecutando correctamente. Puede activar Seer seleccionando cualquier archivo en el RX-Explorer (UWP) y presionando la barra espaciadora</target>
         </trans-unit>
         <trans-unit id="SettingPageSeerSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4936,7 +4936,7 @@ Las denominaciones no válidas son:
           <target state="translated">Descargando el código de activación</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Description" translate="yes" xml:space="preserve">
-          <source>Users who have purchased RX-Explorer(UWP) can redeem the activation code for RX-Explorer(WAS) here. You can activate the license of RX-Explorer(WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</source>
+          <source>Users who have purchased RX-Explorer (UWP) can redeem the activation code for RX-Explorer (WAS) here. You can activate the license of RX-Explorer (WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</source>
           <target state="translated">Los usuarios que hayan comprado RX-Explorer (UWP) pueden canjear el código de activación de RX-Explorer (WAS) aquí. Puede activar la licencia de RX-Explorer (WAS) utilizando el código de activación que se proporciona a continuación en Microsoft Store o, alternativamente, siguiendo el enlace en su navegador.</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Dialog_Download_Button" translate="yes" xml:space="preserve">
@@ -4972,8 +4972,8 @@ Las denominaciones no válidas son:
           <target state="translated">Tu cuenta Microsoft (Correo electrónico)</target>
         </trans-unit>
         <trans-unit id="ContactDeveloper_YourOrderScreenshot" translate="yes" xml:space="preserve">
-          <source>Your orders history screenshot about RX-Explorer in your Microsoft account</source>
-          <target state="translated">Captura de pantalla del historial de pedidos sobre RX-Explorer en su cuenta Microsoft</target>
+          <source>Your orders history screenshot about RX-Explorer (UWP) in your Microsoft account</source>
+          <target state="translated">Captura de pantalla del historial de pedidos sobre RX-Explorer (UWP) en su cuenta Microsoft</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdkDialogContactDeveloper.Content" translate="yes" xml:space="preserve">
           <source>Can't redeem your activation code? Click to contact developer</source>
@@ -4986,6 +4986,10 @@ Las denominaciones no válidas son:
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
           <source>Unable to start WiFi sharing: </source>
           <target state="translated">No se puede iniciar el uso compartido de WiFi: </target>
+        </trans-unit>
+        <trans-unit id="ContextMenu_DisplayName" translate="yes" xml:space="preserve">
+          <source>Open in RX-Explorer (UWP)</source>
+          <target state="translated">Abrir con RX-Explorer (UWP)</target>
         </trans-unit>
       </group>
     </body>

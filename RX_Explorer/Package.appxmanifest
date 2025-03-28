@@ -19,7 +19,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="8.4.8.0" />
+    Version="8.4.9.0" />
 
   <mp:PhoneIdentity PhoneProductId="cb13434c-d58e-4756-a099-364235a676db" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -83,7 +83,10 @@
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
             <desktop5:ItemType Type="Directory">
-              <desktop5:Verb Id="OpenRXExplorerUWP" Clsid="B4CEA422-3911-4198-16CB-63345D563096"/>
+              <desktop5:Verb Id="ExplorerOpenSelectedFolder" Clsid="B4CEA422-3911-4198-16CB-63345D563096"/>
+            </desktop5:ItemType>
+		    <desktop5:ItemType Type="Directory\Background">
+               <desktop5:Verb Id="ExplorerOpenCurrentFolder" Clsid="B4CEA422-3911-4198-16CB-63345D563096"/>
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>

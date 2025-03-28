@@ -1176,7 +1176,7 @@
     <value>副DNS服务器</value>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>将RX文件管理器固定至开始屏幕和任务栏！\r\r★固定至开始屏幕\r\r★固定至任务栏</value>
+    <value>将 RX文件管理器 (UWP) 固定至开始屏幕和任务栏！\r\r★固定至开始屏幕\r\r★固定至任务栏</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1186,10 +1186,10 @@
     <value>稍后</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX文件管理器已被最小化</value>
+    <value>RX文件管理器(UWP) 已被最小化</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX文件管理器将尝试继续执行直至被Windows策略终止</value>
+    <value>RX文件管理器(UWP) 将尝试继续执行直至被Windows策略终止</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>格式</value>
@@ -3029,7 +3029,7 @@
     <value>此处不能为空</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>此操作将重置RX文件管理器，包括:</value>
+    <value>此操作将重置 RX文件管理器 (UWP)，包括:</value>
   </data>
   <data name="NewTerminalProfileDefaultName" xml:space="preserve">
     <value>新建终端配置文件</value>
@@ -3422,7 +3422,7 @@
     <value>与Windows文件管理器的菜单集成</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>启用此选项后将添加"使用RX文件管理器打开"菜单项至Windows文件管理器以快速启动本应用程序</value>
+    <value>启用此选项后将添加"使用 RX文件管理器 (UWP) 打开"菜单项至Windows文件管理器以快速启动本应用程序</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3522,7 +3522,7 @@
     <value>无法调整分辨率太小的图像</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX文件管理器已经重新启动</value>
+    <value>RX文件管理器 (UWP) 已经重新启动</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>我们已尝试恢复之前的状态!</value>
@@ -3585,7 +3585,7 @@
     <value>下载链接</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer是一款Windows平台下的快速查看工具。就像在MacOS中一样，但Seer运行速度更快，可定制化更高，支持格式更多。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活Seer</value>
+    <value>Seer是一款Windows平台下的快速查看工具。就像在MacOS中一样，但Seer运行速度更快，可定制化更高，支持格式更多。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在 RX文件管理器 (UWP) 中点击任意文件并按下空格键来激活Seer</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3714,7 +3714,7 @@
     <value>正在下载激活码</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>已购买了 RX-Explorer(UWP) 的用户可以在这里兑换 RX-Explorer(WAS) 的激活码。 您可以在Microsoft Store中使用下方提供的激活码或通过浏览器访问链接来授予您 RX-Explorer(WAS) 的许可证</value>
+    <value>已购买了 RX文件管理器 (UWP) 的用户可以在这里兑换 RX文件管理器 (WAS) 的激活码。 您可以在 Microsoft Store 中使用下方提供的激活码或通过浏览器访问链接来授予您 RX文件管理器 (WAS) 的许可证</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>下载</value>
@@ -3741,7 +3741,7 @@
     <value>您的微软账号名称 (邮箱)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>您的微软账号中有关RX文件管理器的订单历史截图</value>
+    <value>您的微软账号中有关 RX文件管理器 (UWP) 的订单历史截图</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>无法兑换激活码? 点击联系开发者</value>
@@ -3751,5 +3751,8 @@
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>无法启动WiFi共享: </value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>使用 RX文件管理器 (UWP) 打开</value>
   </data>
 </root>

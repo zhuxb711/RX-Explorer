@@ -11,6 +11,7 @@
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <shobjidl.h>
 #include <shlwapi.h>
 #pragma comment(lib,"shlwapi.lib")

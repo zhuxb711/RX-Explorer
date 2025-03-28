@@ -1232,7 +1232,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Anclar RX Explorer a la pantalla de inicio y a la barra de tareas. \r\r★Anclar a la pantalla de inicio\r\r★Anclar a la barra de tareas</value>
+    <value>Anclar RX Explorer (UWP) a la pantalla de inicio y a la barra de tareas. \r\r★Anclar a la pantalla de inicio\r\r★Anclar a la barra de tareas</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1242,10 +1242,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Más tarde</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX-Explorer está minimizado</value>
+    <value>RX-Explorer (UWP) está minimizado</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX-Explorer intentará continuar con la ejecución hasta que lo cancele la política de Windows</value>
+    <value>RX-Explorer (UWP) intentará continuar con la ejecución hasta que lo cancele la política de Windows</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>formato</value>
@@ -3031,7 +3031,7 @@ Las denominaciones no válidas son:
     <value>No pudo estar vacío aquí</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>Esta acción restablecerá el RX-Explorer, que incluye:</value>
+    <value>Esta acción restablecerá el RX-Explorer (UWP), que incluye:</value>
   </data>
   <data name="NewTerminalProfileDefaultName" xml:space="preserve">
     <value>Nuevo perfil de terminal</value>
@@ -3424,7 +3424,7 @@ Las denominaciones no válidas son:
     <value>Integración con el menú del Explorador de Windows</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>Habilitar esta opción agregará un elemento de menú "Abrir con RX-Explorer" al Explorador de Windows para iniciar esta aplicación más rápido</value>
+    <value>Habilitar esta opción agregará un elemento de menú "Abrir con RX-Explorer (UWP)" al Explorador de Windows para iniciar esta aplicación más rápido</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>Desactivado</value>
@@ -3524,7 +3524,7 @@ Las denominaciones no válidas son:
     <value>No se pudo cambiar el tamaño de las imágenes con una resolución demasiado pequeña</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX-Explorer se ha reiniciado</value>
+    <value>RX-Explorer (UWP) se ha reiniciado</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>¡Hemos intentado restaurar el estado anterior!</value>
@@ -3587,7 +3587,7 @@ Las denominaciones no válidas son:
     <value>Enlace de descarga</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer es una herramienta de visualización rápida para la plataforma Windows. Al igual que en MacOS, pero Seer se ejecuta más rápido, es más personalizable y admite más formatos. Para habilitar esta función, debe instalar Seer con anticipación y asegurarse de que Seer se esté ejecutando correctamente. Puede activar Seer seleccionando cualquier archivo en el RX-Explorer y presionando la barra espaciadora</value>
+    <value>Seer es una herramienta de visualización rápida para la plataforma Windows. Al igual que en MacOS, pero Seer se ejecuta más rápido, es más personalizable y admite más formatos. Para habilitar esta función, debe instalar Seer con anticipación y asegurarse de que Seer se esté ejecutando correctamente. Puede activar Seer seleccionando cualquier archivo en el RX-Explorer (UWP) y presionando la barra espaciadora</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>Desactivado</value>
@@ -3743,7 +3743,7 @@ Las denominaciones no válidas son:
     <value>Tu cuenta Microsoft (Correo electrónico)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>Captura de pantalla del historial de pedidos sobre RX-Explorer en su cuenta Microsoft</value>
+    <value>Captura de pantalla del historial de pedidos sobre RX-Explorer (UWP) en su cuenta Microsoft</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>¿No puedes canjear tu código de activación? Haga clic para ponerse en contacto con el desarrollador</value>
@@ -3753,5 +3753,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>No se puede iniciar el uso compartido de WiFi: </value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>Abrir con RX-Explorer (UWP)</value>
   </data>
 </root>

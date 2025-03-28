@@ -467,7 +467,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Files stored in Security Area</value>
   </data>
   <data name="ResetDialogText.Text" xml:space="preserve">
-    <value>This action will reset the RX-Explorer, including: </value>
+    <value>This action will reset the RX-Explorer (UWP), including: </value>
   </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>Please select an export folder</value>
@@ -1361,7 +1361,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</value>
+    <value>Pin the RX-Explorer (UWP) to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -1371,10 +1371,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Later</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>RX-Explorer is minimized</value>
+    <value>RX-Explorer (UWP) is minimized</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>RX-Explorer will try to continue execution until terminated by Windows policy</value>
+    <value>RX-Explorer (UWP) will try to continue execution until terminated by Windows policy</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>format</value>
@@ -3563,7 +3563,7 @@ Invalid names include
     <value>Integration with Windows Explorer's menu</value>
   </data>
   <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
-    <value>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</value>
+    <value>Enabling this option will add an "Open in RX-Explorer (UWP)" menu item to the Windows Explorer to launch this application faster</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
     <value>Disabled</value>
@@ -3647,7 +3647,7 @@ Invalid names include
     <value>Could not resize images with too small resolution</value>
   </data>
   <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
-    <value>RX-Explorer has been restarted</value>
+    <value>RX-Explorer (UWP) has been restarted</value>
   </data>
   <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
     <value>We have tried to restore the previous state!</value>
@@ -3704,7 +3704,7 @@ Invalid names include
     <value>Download link</value>
   </data>
   <data name="SettingPageSeerContent.Text" xml:space="preserve">
-    <value>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</value>
+    <value>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer (UWP) and pressing the space bar</value>
   </data>
   <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
     <value>Disabled</value>
@@ -3818,7 +3818,7 @@ Invalid names include
     <value>Click the button on the right to redeem the activation code</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
-    <value>Users who have purchased RX-Explorer(UWP) can redeem the activation code for RX-Explorer(WAS) here. You can activate the license of RX-Explorer(WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</value>
+    <value>Users who have purchased RX-Explorer (UWP) can redeem the activation code for RX-Explorer (WAS) here. You can activate the license of RX-Explorer (WAS) by using the activation code provided below in the Microsoft Store or alternatively by following the link in your browser</value>
   </data>
   <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
     <value>Download</value>
@@ -3848,7 +3848,7 @@ Invalid names include
     <value>Your Microsoft account (Email)</value>
   </data>
   <data name="ContactDeveloper_YourOrderScreenshot" xml:space="preserve">
-    <value>Your orders history screenshot about RX-Explorer in your Microsoft account</value>
+    <value>Your orders history screenshot about RX-Explorer (UWP) in your Microsoft account</value>
   </data>
   <data name="GetWinAppSdkDialogContactDeveloper.Content" xml:space="preserve">
     <value>Can't redeem your activation code? Click to contact developer</value>
@@ -3858,5 +3858,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>Unable to start WiFi sharing: </value>
+  </data>
+  <data name="ContextMenu_DisplayName" xml:space="preserve">
+    <value>Open in RX-Explorer (UWP)</value>
   </data>
 </root>

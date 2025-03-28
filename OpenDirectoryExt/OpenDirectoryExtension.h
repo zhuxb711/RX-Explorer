@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 using namespace Microsoft::WRL;
+using namespace winrt::Windows::ApplicationModel::Resources::Core;
 
-struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096")) OpenTerminalHere : public RuntimeClass<RuntimeClassFlags<ClassicCom | InhibitFtmBase>, IExplorerCommand>
+struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096")) OpenDirectoryExtension : public RuntimeClass<RuntimeClassFlags<ClassicCom | InhibitFtmBase>, IExplorerCommand>
 {
 public:
     STDMETHODIMP Invoke(IShellItemArray* psiItemArray,
@@ -21,7 +22,7 @@ public:
     STDMETHODIMP EnumSubCommands(IEnumExplorerCommand** ppEnum);
 
 private:
-    static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer (UWP)" };
+    HRESULT GetLocalizedString(LPCWSTR resName, LPWSTR* ppszOutput);
 };
 
-CoCreatableClass(OpenTerminalHere);
+CoCreatableClass(OpenDirectoryExtension);

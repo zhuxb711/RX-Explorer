@@ -42,7 +42,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.6" />
-		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.6" />
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.1.1" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="4.1.1" />
 	</ItemGroup>
 </Project>
